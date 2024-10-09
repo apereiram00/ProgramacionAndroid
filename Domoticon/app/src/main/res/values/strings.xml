@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Domoticon</string>
+    <string-array name="num_bombillas">
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+</resources>
