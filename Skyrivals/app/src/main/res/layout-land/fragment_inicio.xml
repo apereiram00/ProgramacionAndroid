@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Inicio">
+
+    <TextView
+        android:id="@+id/titulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="39dp"
+        android:layout_marginBottom="14dp"
+        android:fontFamily="sans-serif-condensed"
+        android:letterSpacing="0.05"
+        android:padding="16dp"
+        android:shadowColor="#66000000"
+        android:shadowDx="4"
+        android:shadowDy="4"
+        android:shadowRadius="3"
+        android:text="¡Simula tus combates favoritos!"
+        android:textColor="#FFD700"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/logoproyecto"
+        app:layout_constraintStart_toStartOf="@+id/logoproyecto"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/logoproyecto"
+        android:layout_width="406dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="25dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonEntrar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titulo"
+        app:srcCompat="@drawable/logoproyecto" />
+
+    <Button
+        android:id="@+id/buttonEntrar"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="28dp"
+        android:backgroundTint="#F44336"
+        android:fontFamily="sans-serif-medium"
+        android:text="Entrar"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logoproyecto" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

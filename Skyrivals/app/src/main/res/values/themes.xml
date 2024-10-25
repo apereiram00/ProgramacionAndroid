@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Skyrivals" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="android:colorBackground">@color/backgroundColor</item>
+        <item name="android:textColorPrimary">@color/textColor</item>
+    </style>
+    <style name="Theme.Skyrivals" parent="Base.Theme.Skyrivals" />
+</resources>
