@@ -21,7 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Skyrivals"
 include(":app")
-<<<<<<< HEAD
-=======
- 
->>>>>>> origin/master

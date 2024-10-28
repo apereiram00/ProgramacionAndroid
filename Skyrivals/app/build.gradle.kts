@@ -3,13 +3,10 @@ plugins {
 }
 
 android {
-<<<<<<< HEAD
     viewBinding {
         enable = true
     }
 
-=======
->>>>>>> origin/master
     namespace = "com.example.skyrivals"
     compileSdk = 34
 
@@ -44,11 +41,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-<<<<<<< HEAD
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-=======
->>>>>>> origin/master
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

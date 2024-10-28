@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<<<<<<< HEAD
     <color name="primaryColor">#2E86C1</color> <!-- Azul vibrante -->
     <color name="backgroundColor">#D7CCC8</color> <!-- Fondo claro -->
     <color name="textColor">#333333</color> <!-- Texto oscuro -->
-=======
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
->>>>>>> origin/master
 </resources>
