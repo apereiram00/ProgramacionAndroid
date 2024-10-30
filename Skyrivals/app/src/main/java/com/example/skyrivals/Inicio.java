@@ -27,20 +27,12 @@ public class Inicio extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         binding.buttonEntrar.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_inicio_to_avionesFragment));
-
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).toolBarActiva(false);
-        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).toolBarActiva(true);
-        }
+        binding = null;
     }
-
-
 
 }
