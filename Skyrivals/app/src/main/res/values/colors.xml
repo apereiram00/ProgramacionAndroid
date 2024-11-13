@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primaryColor">#2E86C1</color> <!-- Azul vibrante -->
+    <color name="primaryColor">#FF3D00</color> <!-- Azul vibrante -->
     <color name="backgroundColor">#D7CCC8</color> <!-- Fondo claro -->
-    <color name="textColor">#333333</color> <!-- Texto oscuro -->
+    <color name="tabbedColor">#388E3C</color> <!-- Fondo grisaceo -->
+    <color name="card_color1">#FFEBEE</color> <!-- Color para el primer CardView -->
+    <color name="card_color2">#FFCDD2</color> <!-- Color para el segundo CardView -->
+    <color name="tag_caza_background">#A5D6A7</color> <!-- Fondo verde claro para el tag de caza -->
+    <color name="tag_interceptor_background">#90CAF9</color> <!-- Fondo azul claro para el tag de interceptor -->
+    <color name="tag_caza_border">#388E3C</color> <!-- Borde verde para el tag de caza -->
+    <color name="tag_interceptor_border">#1976D2</color> <!-- Borde azul para el tag de interceptor -->
 </resources>

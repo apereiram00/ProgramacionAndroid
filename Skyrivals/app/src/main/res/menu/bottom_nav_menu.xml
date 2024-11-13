@@ -2,14 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_aviones"
-        android:title="Aviones"
-        android:icon="@drawable/aviones"/>
+        android:icon="@drawable/aviones"
+        android:title="Aviones" />
     <item
-        android:id="@+id/nav_aviones_fav"
-        android:title="AvionesFav"
-        android:icon="@drawable/fav"/>
+        android:id="@+id/nav_avionesFav"
+        android:icon="@drawable/fav"
+        android:title="Favoritos" />
     <item
         android:id="@+id/nav_combate"
-        android:title="Combate"
-        android:icon="@drawable/combate"/>
+        android:icon="@drawable/combate"
+        android:title="Combate" />
 </menu>
+
