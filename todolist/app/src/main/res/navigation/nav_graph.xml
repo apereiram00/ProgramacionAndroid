@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/listaFragment">
+
+    <fragment
+        android:id="@+id/listaFragment"
+        android:name="com.example.todolist.ListaFragment"
+        android:label="fragment_lista"
+        tools:layout="@layout/fragment_lista" >
+        <action
+            android:id="@+id/action_listaFragment_to_crearFragment"
+            app:destination="@id/crearFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_listaFragment_to_edicionFragment"
+            app:destination="@id/edicionFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/crearFragment"
+        android:name="com.example.todolist.CrearFragment"
+        android:label="fragment_crear"
+        tools:layout="@layout/fragment_crear" />
+    <fragment
+        android:id="@+id/edicionFragment"
+        android:name="com.example.todolist.EdicionFragment"
+        android:label="fragment_edicion"
+        tools:layout="@layout/fragment_edicion" />
+</navigation>
