@@ -13,6 +13,10 @@ public class TareasViewModel extends ViewModel {
         return listaTareas;
     }
 
+
+    // Metodos chorra de prueba
+
+
     public void agregarTarea(Tarea tarea) {
         List<Tarea> tareas = listaTareas.getValue();
         if (tareas != null) {
@@ -39,4 +43,3 @@ public class TareasViewModel extends ViewModel {
         }
     }
 }
-

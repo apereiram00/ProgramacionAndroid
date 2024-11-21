@@ -1,7 +1,7 @@
 package com.example.todolist;
 
 public class Tarea {
-    private String titulo; // Si no necesitas que sea inmutable, quita `final`.
+    private String titulo;
     private String descripcion;
     private int prioridad;
 
@@ -31,5 +31,3 @@ public class Tarea {
         this.prioridad = prioridad;
     }
 }
-
-

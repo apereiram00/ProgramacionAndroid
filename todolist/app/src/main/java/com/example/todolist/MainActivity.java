@@ -1,30 +1,45 @@
 package com.example.todolist;
 
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import com.example.todolist.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
-    private ActivityMainBinding binding; // ViewBinding
-    private TareasViewModel tareasViewModel; // ViewModel compartido
+    private ActivityMainBinding binding;
+    private NavController navController;
+    private TareasViewModel tareasViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // Configurar Toolbar
         setSupportActionBar(binding.toolbar);
 
-        // Inicializar ViewModel
-        tareasViewModel = new ViewModelProvider(this).get(TareasViewModel.class);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+        if (navHostFragment != null) {
+            navController = navHostFragment.getNavController();
+            Log.d("MainActivity", "NavController carga");
+        } else {
+            Log.e("MainActivity", "NavHostFragment no carga");
+        }
 
-        // Observar cambios en la lista de tareas
+        tareasViewModel = new ViewModelProvider(this).get(TareasViewModel.class);
         tareasViewModel.getListaTareas().observe(this, tareas -> {
             int cantidadTareas = (tareas != null) ? tareas.size() : 0;
-            binding.toolbar.setTitle("Listado de tareas (" + cantidadTareas + ")");
+            setTitle("Listado de tareas (" + cantidadTareas + ")");
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }
