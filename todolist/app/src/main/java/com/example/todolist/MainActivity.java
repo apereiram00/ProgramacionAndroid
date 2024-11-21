@@ -1,8 +1,6 @@
 package com.example.todolist;
 
 import android.os.Bundle;
-import android.util.Log;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -22,13 +20,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment);
-        if (navHostFragment != null) {
-            navController = navHostFragment.getNavController();
-            Log.d("MainActivity", "NavController carga");
-        } else {
-            Log.e("MainActivity", "NavHostFragment no carga");
-        }
+                .findFragmentById(binding.listaFragmentsolo.getId());
+        navController = navHostFragment.getNavController();
 
         tareasViewModel = new ViewModelProvider(this).get(TareasViewModel.class);
         tareasViewModel.getListaTareas().observe(this, tareas -> {
