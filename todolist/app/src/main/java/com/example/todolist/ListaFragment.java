@@ -35,31 +35,22 @@ public class ListaFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         tareasViewModel = new ViewModelProvider(requireActivity()).get(TareasViewModel.class);
+        NavController navController = Navigation.findNavController(view);
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new TareasAdapter(tareasViewModel.getListaTareas().getValue(), position -> {
             Tarea tarea = tareasViewModel.getListaTareas().getValue().get(position);
-
-            NavController navController = Navigation.findNavController(view);
-            Bundle args = new Bundle();
-            args.putString("titulo", tarea.getTitulo());
-            args.putString("descripcion", tarea.getDescripcion());
-            args.putInt("prioridad", tarea.getPrioridad());
-            args.putInt("position", position);
-            navController.navigate(R.id.action_listaFragment_to_edicionFragment, args);
+            tareasViewModel.setTareaSeleccionada(tarea);
+            navController.navigate(R.id.action_listaFragment_to_edicionFragment);
         });
         binding.recyclerView.setAdapter(adapter);
 
-        tareasViewModel.getListaTareas().observe(getViewLifecycleOwner(), tareas -> {
-            adapter.updateTareas(tareas);
-        });
+        tareasViewModel.getListaTareas().observe(getViewLifecycleOwner(), adapter::updateTareas);
 
-        binding.btnCrearTarea.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(view);
-            navController.navigate(R.id.action_listaFragment_to_crearFragment);
-        });
+        binding.btnCrearTarea.setOnClickListener(v ->
+                navController.navigate(R.id.action_listaFragment_to_crearFragment));
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -69,21 +60,15 @@ public class ListaFragment extends Fragment {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
                 Tarea tarea = tareasViewModel.getListaTareas().getValue().get(position);
-
                 new AlertDialog.Builder(requireContext())
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle("Borrar")
                         .setMessage("¿Quiere borrar la tarea: " + tarea.getTitulo() + "?")
-                        .setPositiveButton("Aceptar", (dialog, which) -> {
-                            tareasViewModel.eliminarTarea(position);
-                        })
-                        .setNegativeButton("Cancelar", (dialog, which) -> {
-                            adapter.notifyItemChanged(position);
-                        })
+                        .setPositiveButton("Aceptar", (dialog, which) -> tareasViewModel.eliminarTarea(position))
+                        .setNegativeButton("Cancelar", (dialog, which) -> adapter.notifyItemChanged(position))
                         .show();
             }
-        });
-        itemTouchHelper.attachToRecyclerView(binding.recyclerView);
+        }).attachToRecyclerView(binding.recyclerView);
     }
 
     @Override

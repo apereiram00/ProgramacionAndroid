@@ -10,6 +10,7 @@ import java.util.List;
 
 public class TareasViewModel extends ViewModel {
     private final MutableLiveData<List<Tarea>> listaTareas = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<Tarea> tareaSeleccionada = new MutableLiveData<>();
 
     public LiveData<List<Tarea>> getListaTareas() {
         return listaTareas;
@@ -41,5 +42,12 @@ public class TareasViewModel extends ViewModel {
             listaTareas.setValue(tareas);
         }
     }
-}
 
+    public void setTareaSeleccionada(Tarea tarea) {
+        tareaSeleccionada.setValue(tarea);
+    }
+
+    public LiveData<Tarea> getTareaSeleccionada() {
+        return tareaSeleccionada;
+    }
+}

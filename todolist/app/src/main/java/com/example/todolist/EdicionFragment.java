@@ -23,7 +23,6 @@ public class EdicionFragment extends Fragment {
     private String nombreOriginal;
     private String descripcionOriginal;
     private int prioridadOriginal;
-    private int posicionTarea;
 
     @Nullable
     @Override
@@ -39,19 +38,19 @@ public class EdicionFragment extends Fragment {
         tareasViewModel = new ViewModelProvider(requireActivity()).get(TareasViewModel.class);
         NavController navController = Navigation.findNavController(view);
 
-        if (getArguments() != null) {
-            nombreOriginal = getArguments().getString("titulo");
-            descripcionOriginal = getArguments().getString("descripcion");
-            prioridadOriginal = getArguments().getInt("prioridad");
-            posicionTarea = getArguments().getInt("position");
-        }
+        tareasViewModel.getTareaSeleccionada().observe(getViewLifecycleOwner(), tarea -> {
+            if (tarea != null) {
+                nombreOriginal = tarea.getTitulo();
+                descripcionOriginal = tarea.getDescripcion();
+                prioridadOriginal = tarea.getPrioridad();
 
-        binding.inputNombreTarea.setText(nombreOriginal);
-        binding.inputDescripcionTarea.setText(descripcionOriginal);
-        binding.spinnerPrioridad.setSelection(prioridadOriginal - 1);
-
-        binding.inputNombreTarea.setFocusable(false);
-        binding.inputDescripcionTarea.setFocusable(false);
+                binding.inputNombreTarea.setText(nombreOriginal);
+                binding.inputDescripcionTarea.setText(descripcionOriginal);
+                binding.spinnerPrioridad.setSelection(prioridadOriginal - 1);
+                binding.inputNombreTarea.setFocusable(false);
+                binding.inputDescripcionTarea.setFocusable(false);
+            }
+        });
 
         binding.btnCancelar.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
@@ -60,27 +59,29 @@ public class EdicionFragment extends Fragment {
                     .setMessage("¿Quiere abandonar la edición de la tarea?")
                     .setNegativeButton("Cancelar", null)
                     .setPositiveButton("Aceptar", (dialog, which) -> {
+                        mostrarMensajeFracaso();
                         navController.popBackStack();
                     })
                     .show();
         });
 
         binding.btnAceptar.setOnClickListener(v -> {
-            String nuevoNombre = binding.inputNombreTarea.getText().toString().trim();
             String nuevaDescripcion = binding.inputDescripcionTarea.getText().toString().trim();
             int nuevaPrioridad = binding.spinnerPrioridad.getSelectedItemPosition() + 1;
-
-            boolean seModifico = !nuevoNombre.equals(nombreOriginal)
-                    || !nuevaDescripcion.equals(descripcionOriginal)
+            boolean modificado = !nuevaDescripcion.equals(descripcionOriginal)
                     || nuevaPrioridad != prioridadOriginal;
 
-            if (seModifico) {
-                tareasViewModel.editarTarea(posicionTarea, nuevaPrioridad, nuevaDescripcion);
-
+            if (modificado) {
+                Tarea tareaSeleccionada = tareasViewModel.getTareaSeleccionada().getValue();
+                if (tareaSeleccionada != null) {
+                    int posicion = tareasViewModel.getListaTareas().getValue().indexOf(tareaSeleccionada);
+                    tareasViewModel.editarTarea(posicion, nuevaPrioridad, nuevaDescripcion);
+                }
                 mostrarMensajeExito();
                 navController.popBackStack();
             } else {
                 mostrarMensajeFracaso();
+                navController.popBackStack();
             }
         });
     }
@@ -98,7 +99,7 @@ public class EdicionFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle("TAREA NO MODIFICADA")
                 .setMessage("La tarea no ha sufrido modificaciones")
-                .setIcon(android.R.drawable.checkbox_on_background)
+                .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton("Aceptar", null)
                 .show();
     }

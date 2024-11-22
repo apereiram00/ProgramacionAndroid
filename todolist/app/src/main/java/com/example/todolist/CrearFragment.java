@@ -49,12 +49,10 @@ public class CrearFragment extends Fragment {
             String nombreTarea = binding.inputNombreTarea.getText().toString().trim();
             String descripcionTarea = binding.inputDescripcionTarea.getText().toString().trim();
             int prioridadSeleccionada = binding.spinnerPrioridad.getSelectedItemPosition() + 1;
-
             binding.inputLayoutNombreTarea.setError(null);
             binding.inputLayoutDescripcionTarea.setError(null);
 
             boolean valid = true;
-
             if (nombreTarea.isEmpty()) {
                 binding.inputLayoutNombreTarea.setError("Debe especificar un Nombre");
                 valid = false;

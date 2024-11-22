@@ -67,7 +67,10 @@
             android:id="@+id/inputDescripcionTarea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textMultiLine"
+            android:gravity="top|start"
+            android:lines="5"
+            android:scrollbars="vertical"
             android:padding="12dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -79,7 +82,6 @@
         android:layout_marginTop="128dp"
         android:gravity="center">
 
-        <!-- Botón Aceptar -->
         <Button
             android:id="@+id/btnAceptar"
             style="@style/AcceptButtonStyle"
