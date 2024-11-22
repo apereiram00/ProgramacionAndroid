@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AcceptButtonStyle" parent="Widget.Material3.Button">
+        <item name="backgroundTint">#A5D6A7</item>
+        <item name="strokeColor">#A5D6A7</item>
+    </style>
+
+    <style name="CancelButtonStyle" parent="Widget.Material3.Button">
+        <item name="backgroundTint">#EF9A9A</item>
+        <item name="strokeColor">#EF9A9A</item>
+    </style>
+</resources>

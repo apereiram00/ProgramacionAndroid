@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class TareasViewModel extends ViewModel {
@@ -13,14 +15,11 @@ public class TareasViewModel extends ViewModel {
         return listaTareas;
     }
 
-
-    // Metodos chorra de prueba
-
-
     public void agregarTarea(Tarea tarea) {
         List<Tarea> tareas = listaTareas.getValue();
         if (tareas != null) {
             tareas.add(tarea);
+            Collections.sort(tareas, Comparator.comparingInt(Tarea::getPrioridad));
             listaTareas.setValue(tareas);
         }
     }
@@ -43,3 +42,4 @@ public class TareasViewModel extends ViewModel {
         }
     }
 }
+

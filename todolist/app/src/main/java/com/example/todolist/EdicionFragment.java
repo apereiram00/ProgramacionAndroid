@@ -1,64 +1,111 @@
 package com.example.todolist;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link EdicionFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
+import com.example.todolist.databinding.FragmentEdicionBinding;
+
 public class EdicionFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private FragmentEdicionBinding binding;
+    private TareasViewModel tareasViewModel;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String nombreOriginal;
+    private String descripcionOriginal;
+    private int prioridadOriginal;
+    private int posicionTarea;
 
-    public EdicionFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EdicionFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static EdicionFragment newInstance(String param1, String param2) {
-        EdicionFragment fragment = new EdicionFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentEdicionBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        tareasViewModel = new ViewModelProvider(requireActivity()).get(TareasViewModel.class);
+        NavController navController = Navigation.findNavController(view);
+
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            nombreOriginal = getArguments().getString("titulo");
+            descripcionOriginal = getArguments().getString("descripcion");
+            prioridadOriginal = getArguments().getInt("prioridad");
+            posicionTarea = getArguments().getInt("position");
         }
+
+        binding.inputNombreTarea.setText(nombreOriginal);
+        binding.inputDescripcionTarea.setText(descripcionOriginal);
+        binding.spinnerPrioridad.setSelection(prioridadOriginal - 1);
+
+        binding.inputNombreTarea.setFocusable(false);
+        binding.inputDescripcionTarea.setFocusable(false);
+
+        binding.btnCancelar.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Abandonar")
+                    .setMessage("¿Quiere abandonar la edición de la tarea?")
+                    .setNegativeButton("Cancelar", null)
+                    .setPositiveButton("Aceptar", (dialog, which) -> {
+                        navController.popBackStack();
+                    })
+                    .show();
+        });
+
+        binding.btnAceptar.setOnClickListener(v -> {
+            String nuevoNombre = binding.inputNombreTarea.getText().toString().trim();
+            String nuevaDescripcion = binding.inputDescripcionTarea.getText().toString().trim();
+            int nuevaPrioridad = binding.spinnerPrioridad.getSelectedItemPosition() + 1;
+
+            boolean seModifico = !nuevoNombre.equals(nombreOriginal)
+                    || !nuevaDescripcion.equals(descripcionOriginal)
+                    || nuevaPrioridad != prioridadOriginal;
+
+            if (seModifico) {
+                tareasViewModel.editarTarea(posicionTarea, nuevaPrioridad, nuevaDescripcion);
+
+                mostrarMensajeExito();
+                navController.popBackStack();
+            } else {
+                mostrarMensajeFracaso();
+            }
+        });
+    }
+
+    private void mostrarMensajeExito() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("TAREA MODIFICADA")
+                .setMessage("La tarea se ha modificado con éxito")
+                .setIcon(android.R.drawable.checkbox_on_background)
+                .setPositiveButton("Aceptar", null)
+                .show();
+    }
+
+    private void mostrarMensajeFracaso() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("TAREA NO MODIFICADA")
+                .setMessage("La tarea no ha sufrido modificaciones")
+                .setIcon(android.R.drawable.checkbox_on_background)
+                .setPositiveButton("Aceptar", null)
+                .show();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_edicion, container, false);
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

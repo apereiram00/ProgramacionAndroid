@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(binding.listaFragmentsolo.getId());
+                .findFragmentById(binding.listaFragment.getId());
         navController = navHostFragment.getNavController();
 
         tareasViewModel = new ViewModelProvider(this).get(TareasViewModel.class);
