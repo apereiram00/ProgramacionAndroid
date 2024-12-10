@@ -18,7 +18,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         void onEditarTarea(int position);
     }
 
-
     public TareasAdapter(List<Tarea> tareas,  OnEditarTareaListener listener) {
         this.tareas = tareas;
         this.editarTareaListener = listener;

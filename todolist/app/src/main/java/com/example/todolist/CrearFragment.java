@@ -68,13 +68,11 @@ public class CrearFragment extends Fragment {
             }
 
             boolean tareaExiste = verificarTareaExiste(nombreTarea);
-
             if (tareaExiste) {
                 binding.inputLayoutNombreTarea.setError("Ya existe una tarea con ese nombre");
             } else {
                 Tarea nuevaTarea = new Tarea(nombreTarea, descripcionTarea, prioridadSeleccionada);
                 tareasViewModel.agregarTarea(nuevaTarea);
-
                 mostrarMensajeExito();
                 navController.popBackStack();
             }
