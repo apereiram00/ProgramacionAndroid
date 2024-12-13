@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/busquedaFragment">
+
+    <fragment
+        android:id="@+id/busquedaFragment"
+        android:name="com.example.simpsonsapi.UI.Busqueda.BusquedaFragment"
+        android:label="fragment_busqueda"
+        tools:layout="@layout/fragment_busqueda" />
+    <fragment
+        android:id="@+id/listadoFragment"
+        android:name="com.example.simpsonsapi.UI.Listado.ListadoFragment"
+        android:label="fragment_listado"
+        tools:layout="@layout/fragment_listado" >
+        <action
+            android:id="@+id/action_listadoFragment_to_detalleFragment2"
+            app:destination="@id/detalleFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/detalleFragment"
+        android:name="com.example.simpsonsapi.DetalleFragment"
+        android:label="fragment_detalle"
+        tools:layout="@layout/fragment_detalle" />
+</navigation>
