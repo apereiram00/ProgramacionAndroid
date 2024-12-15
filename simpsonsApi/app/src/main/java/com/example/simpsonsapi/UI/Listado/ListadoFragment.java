@@ -11,11 +11,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.simpsonsapi.databinding.FragmentListadoBinding;
 
+// Fragmento para mostrar la lista de personajes de Los Simpsons
 public class ListadoFragment extends Fragment {
 
     private FragmentListadoBinding binding;
-    private PersonajesAdapter adapter;
-    private PersonajeViewModel viewModel;
+    private PersonajesAdapter adapter; // Adaptador para manejar la lista de personajes en el RecyclerView
+    private PersonajeViewModel viewModel; // ViewModel para gestionar y observar los datos de personajes
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class ListadoFragment extends Fragment {
             }
         });
         binding.progressBar.setVisibility(View.VISIBLE);
-        viewModel.cargarPersonajes(40);
+        viewModel.cargarPersonajes(40); // Con esto pongo el limite a 40 personajes
 
     }
 

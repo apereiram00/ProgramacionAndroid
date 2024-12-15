@@ -12,13 +12,14 @@ import com.example.simpsonsapi.R;
 import com.example.simpsonsapi.databinding.FragmentBusquedaBinding;
 import com.example.simpsonsapi.model.Personajes;
 import com.example.simpsonsapi.UI.Listado.PersonajeViewModel;
-
 import java.util.List;
 
+
+// Fragmento para buscar personajes de Los Simpsons por su nombre
 public class BusquedaFragment extends Fragment {
 
     private FragmentBusquedaBinding binding;
-    private PersonajeViewModel viewModel;
+    private PersonajeViewModel viewModel; // ViewModel para obtener y observar la lista de personajes
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class BusquedaFragment extends Fragment {
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (query != null && !query.trim().isEmpty()) {
+                if (query != null && !query.trim().isEmpty()) { // Realiza la búsqueda si el texto no está vacío
                     buscarPersonaje(query.trim());
                 }
                 return false;
@@ -47,16 +48,15 @@ public class BusquedaFragment extends Fragment {
                 return false;
             }
         });
-
     }
 
+    // Funcion que busca un personaje por su nombre en la lista proporcionada por el ViewModel
     private void buscarPersonaje(String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
             return;
         }
         Personajes personajeEncontrado = buscarPersonajePorNombre(nombre.trim());
-
-        if (personajeEncontrado != null) {
+        if (personajeEncontrado != null) { // Muestra los detalles del personaje si se encuentra
             Glide.with(requireContext())
                     .load(personajeEncontrado.getImage())
                     .into(binding.imagenBusqueda);
@@ -69,9 +69,9 @@ public class BusquedaFragment extends Fragment {
         }
     }
 
+    // Funcion que busca un personaje en la lista por coincidencia de nombre.
     private Personajes buscarPersonajePorNombre(String nombre) {
         List<Personajes> personajes = viewModel.getPersonajes().getValue();
-
         if (personajes != null && !personajes.isEmpty()) {
             for (Personajes personaje : personajes) {
                 if (personaje.getCharacter().toLowerCase().contains(nombre.toLowerCase())) {

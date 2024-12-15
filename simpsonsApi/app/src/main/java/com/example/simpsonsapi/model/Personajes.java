@@ -1,5 +1,6 @@
 package com.example.simpsonsapi.model;
 
+// Clase Personajes
 public class Personajes {
     private String character;
     private String image;

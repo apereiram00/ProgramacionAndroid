@@ -17,9 +17,8 @@ import java.util.List;
 
 public class PersonajesAdapter extends RecyclerView.Adapter<PersonajesAdapter.ViewHolder> {
 
-    private List<Personajes> personajes = new ArrayList<>();
-
-    public void setPersonajes(List<Personajes> personajes) {
+    private List<Personajes> personajes = new ArrayList<>(); // // Lista de personajes que se va a mostrar en el RecyclerView
+    public void setPersonajes(List<Personajes> personajes) { //  // Método para actualizar la lista de personajes
         this.personajes = personajes;
         notifyDataSetChanged();
     }
@@ -34,9 +33,9 @@ public class PersonajesAdapter extends RecyclerView.Adapter<PersonajesAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Personajes personaje = personajes.get(position);
-        holder.binding.nombrePersonaje.setText(personaje.getCharacter());
-        holder.itemView.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
+        holder.binding.nombrePersonaje.setText(personaje.getCharacter()); // Establezco el nombre del personaje en el TextView
+        holder.itemView.setOnClickListener(v -> { // SetOnClick para navegar al DetallesFragment
+            Bundle bundle = new Bundle(); // Y creo un bundle para enviar los datos a ese fragment
             bundle.putString("character", personaje.getCharacter());
             bundle.putString("quote", personaje.getQuote());
             bundle.putString("imageUrl", personaje.getImage());
@@ -49,6 +48,7 @@ public class PersonajesAdapter extends RecyclerView.Adapter<PersonajesAdapter.Vi
         return personajes.size();
     }
 
+    // Clase interna ViewHolder que mantiene una referencia al binding del ítem (la pude hacer como clase separada pero es poco código en este caso)
     static class ViewHolder extends RecyclerView.ViewHolder {
         ItemPersonajeBinding binding;
         ViewHolder(ItemPersonajeBinding binding) {

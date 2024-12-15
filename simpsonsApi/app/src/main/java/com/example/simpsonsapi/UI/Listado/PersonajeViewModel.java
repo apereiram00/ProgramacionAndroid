@@ -24,9 +24,9 @@ public class PersonajeViewModel extends ViewModel {
     }
 
     public void cargarPersonajes(int count) {
-        // Solo cargamos los personajes si no se han cargado previamente
+        // Solo se cargan los personajes si no se han cargado previamente
         if (cargados) {
-            return; // Si ya se cargaron, no volvemos a hacer la solicitud
+            return; // Si ya se cargaron no se vuelve a hacer la solicitud
         }
 
         InterfazDeServicio servicio = RetrofitInstance.getInstance().create(InterfazDeServicio.class);
@@ -38,7 +38,7 @@ public class PersonajeViewModel extends ViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Personajes> personajesFiltrados = filtrarPersonajesUnicos(response.body());
                     personajesLiveData.setValue(personajesFiltrados);
-                    cargados = true; // Marcamos que los personajes han sido cargados
+                    cargados = true; // Manera cutre de comprobar que los personajes han sido cargados
                 } else {
                     personajesLiveData.setValue(null);
                 }
