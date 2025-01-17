@@ -68,6 +68,7 @@ public class EdicionFragment extends Fragment {
         binding.btnAceptar.setOnClickListener(v -> {
             String nuevaDescripcion = binding.inputDescripcionTarea.getText().toString().trim();
             int nuevaPrioridad = binding.spinnerPrioridad.getSelectedItemPosition() + 1;
+
             boolean modificado = !nuevaDescripcion.equals(descripcionOriginal)
                     || nuevaPrioridad != prioridadOriginal;
 
@@ -75,15 +76,53 @@ public class EdicionFragment extends Fragment {
                 Tarea tareaSeleccionada = tareasViewModel.getTareaSeleccionada().getValue();
                 if (tareaSeleccionada != null) {
                     int posicion = tareasViewModel.getListaTareas().getValue().indexOf(tareaSeleccionada);
-                    tareasViewModel.editarTarea(posicion, nuevaPrioridad, nuevaDescripcion);
+
+                    bloquearInterfaz(true);
+
+                    tareasViewModel.editarTarea(posicion, nuevaPrioridad, nuevaDescripcion, new TareaCallback() {
+                        @Override
+                        public void onStart() {}
+
+                        @Override
+                        public void onSuccess() {
+                            desbloquearInterfaz();
+                            mostrarMensajeExito();
+                            navController.popBackStack();
+                        }
+
+                        @Override
+                        public void onError(String errorMsg) {
+                            desbloquearInterfaz();
+                            mostrarMensajeError(errorMsg);
+                        }
+                    });
                 }
-                mostrarMensajeExito();
-                navController.popBackStack();
             } else {
                 mostrarMensajeFracaso();
                 navController.popBackStack();
             }
         });
+
+    }
+
+    private void bloquearInterfaz(boolean bloquear) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                if (bloquear) {
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                    binding.btnAceptar.setEnabled(false);
+                    binding.btnCancelar.setEnabled(false);
+                } else {
+                    binding.progressBar.setVisibility(View.GONE);
+                    binding.btnAceptar.setEnabled(true);
+                    binding.btnCancelar.setEnabled(true);
+                }
+            });
+        }
+    }
+
+    private void desbloquearInterfaz() {
+        bloquearInterfaz(false);
     }
 
     private void mostrarMensajeExito() {
@@ -99,6 +138,15 @@ public class EdicionFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle("TAREA NO MODIFICADA")
                 .setMessage("La tarea no ha sufrido modificaciones")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("Aceptar", null)
+                .show();
+    }
+
+    private void mostrarMensajeError(String errorMsg) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("ERROR")
+                .setMessage(errorMsg)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton("Aceptar", null)
                 .show();

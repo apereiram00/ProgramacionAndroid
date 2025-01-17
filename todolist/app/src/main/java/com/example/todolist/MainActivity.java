@@ -1,6 +1,10 @@
 package com.example.todolist;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -29,6 +33,21 @@ public class MainActivity extends AppCompatActivity {
             setTitle("Listado de tareas (" + cantidadTareas + ")");
         });
     }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_completadas) {
+            item.setChecked(!item.isChecked());
+            tareasViewModel.setMostrarCompletadas(item.isChecked());
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     protected void onDestroy() {

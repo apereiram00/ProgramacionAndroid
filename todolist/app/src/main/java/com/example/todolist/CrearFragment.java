@@ -39,9 +39,7 @@ public class CrearFragment extends Fragment {
                     .setTitle("Abandonar")
                     .setMessage("¿Quiere abandonar la creación de la tarea?")
                     .setNegativeButton("Cancelar", null)
-                    .setPositiveButton("Aceptar", (dialog, which) -> {
-                        navController.popBackStack();
-                    })
+                    .setPositiveButton("Aceptar", (dialog, which) -> navController.popBackStack())
                     .show();
         });
 
@@ -49,6 +47,7 @@ public class CrearFragment extends Fragment {
             String nombreTarea = binding.inputNombreTarea.getText().toString().trim();
             String descripcionTarea = binding.inputDescripcionTarea.getText().toString().trim();
             int prioridadSeleccionada = binding.spinnerPrioridad.getSelectedItemPosition() + 1;
+
             binding.inputLayoutNombreTarea.setError(null);
             binding.inputLayoutDescripcionTarea.setError(null);
 
@@ -57,24 +56,47 @@ public class CrearFragment extends Fragment {
                 binding.inputLayoutNombreTarea.setError("Debe especificar un Nombre");
                 valid = false;
             }
-
             if (descripcionTarea.isEmpty()) {
                 binding.inputLayoutDescripcionTarea.setError("Debe especificar una Descripción");
                 valid = false;
             }
-
-            if (!valid) {
-                return;
-            }
+            if (!valid) return;
 
             boolean tareaExiste = verificarTareaExiste(nombreTarea);
+
             if (tareaExiste) {
                 binding.inputLayoutNombreTarea.setError("Ya existe una tarea con ese nombre");
             } else {
                 Tarea nuevaTarea = new Tarea(nombreTarea, descripcionTarea, prioridadSeleccionada);
-                tareasViewModel.agregarTarea(nuevaTarea);
-                mostrarMensajeExito();
-                navController.popBackStack();
+                binding.progressBar.setVisibility(View.VISIBLE);
+
+                tareasViewModel.agregarTarea(nuevaTarea, new TareaCallback() {
+                    @Override
+                    public void onStart() {
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        requireActivity().runOnUiThread(() -> {
+                            binding.progressBar.setVisibility(View.GONE);
+                            mostrarMensajeExito();
+                            navController.popBackStack();
+                        });
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        requireActivity().runOnUiThread(() -> {
+                            binding.progressBar.setVisibility(View.GONE);
+                            new AlertDialog.Builder(requireContext())
+                                    .setTitle("Error")
+                                    .setMessage(errorMessage)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setPositiveButton("Aceptar", null)
+                                    .show();
+                        });
+                    }
+                });
             }
         });
     }
@@ -95,7 +117,7 @@ public class CrearFragment extends Fragment {
                 .setTitle("TAREA CREADA")
                 .setMessage("La tarea ha sido creada con éxito")
                 .setIcon(android.R.drawable.checkbox_on_background)
-                .setPositiveButton("Aceptar", (dialog, which) -> {})
+                .setPositiveButton("Aceptar", null)
                 .show();
     }
 
