@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "694612063140",
+    "project_id": "as9auth",
+    "storage_bucket": "as9auth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:694612063140:android:c03513bdaa19f8cc5b0731",
+        "android_client_info": {
+          "package_name": "com.example.as7room"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "694612063140-ecs5l4usp3i8tel120br5db74pg214n7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.as7room",
+            "certificate_hash": "cd5fe15061b5cba529907d6338ac73a4be8a768c"
+          }
+        },
+        {
+          "client_id": "694612063140-j1pcpr207oh8cimeu56it3329vdl2il2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9EM_VyIgFWsRheU9-7shhrDigE_HlSYc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "694612063140-j1pcpr207oh8cimeu56it3329vdl2il2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

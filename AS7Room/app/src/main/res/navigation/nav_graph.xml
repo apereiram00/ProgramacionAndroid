@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/fragmentListaTareas">
+
+    <fragment
+        android:id="@+id/fragmentListaTareas"
+        android:name="com.example.as7room.UI.FragmentListaTareas"
+        android:label="Lista de Tareas"
+        tools:layout="@layout/fragment_lista_tareas" >
+        <action
+            android:id="@+id/action_fragmentListaTareas_to_fragmentAgregarTarea2"
+            app:destination="@id/fragmentAgregarTarea"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_fragmentListaTareas_to_fragmentDetalleTarea"
+            app:destination="@id/fragmentDetalleTarea"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentAgregarTarea"
+        android:name="com.example.as7room.UI.FragmentAgregarTarea"
+        android:label="fragment_agregar_tarea"
+        tools:layout="@layout/fragment_agregar_tarea" />
+    <fragment
+        android:id="@+id/fragmentDetalleTarea"
+        android:name="com.example.as7room.UI.FragmentDetalleTarea"
+        android:label="fragment_detalle_tarea"
+        tools:layout="@layout/fragment_detalle_tarea" />
+    <fragment
+        android:id="@+id/fragmentBusqueda"
+        android:name="com.example.as7room.UI.FragmentBusqueda"
+        android:label="fragment_busqueda"
+        tools:layout="@layout/fragment_busqueda" >
+        <action
+            android:id="@+id/action_fragmentBusqueda_to_fragmentDetalleTarea"
+            app:destination="@id/fragmentDetalleTarea"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentRegistro"
+        android:name="com.example.as7room.UI.RegistroActivity"
+        android:label="fragment_registro"
+        tools:layout="@layout/fragment_registro" />
+</navigation>
