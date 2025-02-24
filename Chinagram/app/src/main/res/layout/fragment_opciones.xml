@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/dark_background">
+
+    <!-- Modo Oscuro/Claro -->
+    <LinearLayout
+        android:id="@+id/modoOscuroClaro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Modo Oscuro/Claro"
+            android:textColor="@color/white"
+            android:textSize="16sp"/>
+        <Switch
+            android:id="@+id/switchModo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"/>
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/cerrarSesionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cerrar Sesión"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/dark_background"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/eliminarCuentaButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Eliminar Cuenta"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/dark_background"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/soporteButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Obtener Ayuda"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/dark_background"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>

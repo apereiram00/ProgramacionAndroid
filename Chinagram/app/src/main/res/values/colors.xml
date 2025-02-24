@@ -1,0 +1,9 @@
+<resources>
+    <!-- Colores principales -->
+    <color name="dark_background">#121212</color> <!-- Fondo oscuro -->
+    <color name="white">#FFFFFF</color> <!-- Texto blanco -->
+    <color name="gray">#9E9E9E</color> <!-- Texto gris para hints -->
+    <color name="google_blue">#4285F4</color> <!-- Azul de Google -->
+    <color name="accent_color">#BB86FC</color> <!-- Color de acento (púrpura) -->
+    <color name="red">#FF0000</color> <!-- Rojo puro -->
+</resources>
