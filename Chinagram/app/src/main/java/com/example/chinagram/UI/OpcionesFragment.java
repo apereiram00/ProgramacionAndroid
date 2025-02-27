@@ -51,13 +51,12 @@ public class OpcionesFragment extends Fragment {
 
         // Listener para cambiar entre modo oscuro y claro
         binding.switchModo.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Log.d("OpcionesFragment", "Cambiando tema a: " + (isChecked ? "Oscuro" : "Claro"));
             int newTheme = isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
-            prefsHelper.guardarTema(newTheme); // Guardo el tema en preferencias
-            AppCompatDelegate.setDefaultNightMode(newTheme); // Aplico el tema
-            new AlertDialog.Builder(requireContext())
-                    .setMessage(isChecked ? "Modo Oscuro activado, camarada." : "Modo Claro activado, camarada.")
-                    .setPositiveButton("Entendido", null)
-                    .show();
+            prefsHelper.guardarTema(newTheme);
+            AppCompatDelegate.setDefaultNightMode(newTheme);
+            // Forzar recarga de la actividad para reflejar el cambio
+            requireActivity().recreate();
         });
 
         // Listener para cerrar sesión

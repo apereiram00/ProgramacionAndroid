@@ -4,17 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/dark_background">
+    android:padding="16dp">
 
     <EditText
         android:id="@+id/edit_nombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nombre"
-        android:textColor="@color/white"
-        android:textColorHint="@color/gray"
-        android:backgroundTint="@color/white"
         android:inputType="text"/>
 
     <EditText
@@ -22,9 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Biografía"
-        android:textColor="@color/white"
-        android:textColorHint="@color/gray"
-        android:backgroundTint="@color/white"
         android:maxLength="150"
         android:inputType="text"
         android:layout_marginTop="8dp"/>

@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_background"
     android:padding="16dp">
 
     <ImageView
@@ -25,7 +24,6 @@
         android:text="0"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/fotoPerfilImageView"
         app:layout_constraintEnd_toStartOf="@id/seguidoresTextView"
@@ -37,7 +35,6 @@
         android:layout_height="wrap_content"
         android:text="Publicaciones"
         android:textSize="12sp"
-        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/publicacionesTextView"
         app:layout_constraintStart_toStartOf="@id/publicacionesTextView"
         app:layout_constraintEnd_toEndOf="@id/publicacionesTextView"/>
@@ -49,7 +46,6 @@
         android:text="0"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/publicacionesTextView"
         app:layout_constraintEnd_toStartOf="@id/siguiendoTextView"
@@ -61,7 +57,6 @@
         android:layout_height="wrap_content"
         android:text="Seguidores"
         android:textSize="12sp"
-        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/seguidoresTextView"
         app:layout_constraintStart_toStartOf="@id/seguidoresTextView"
         app:layout_constraintEnd_toEndOf="@id/seguidoresTextView"/>
@@ -73,7 +68,6 @@
         android:text="0"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/seguidoresTextView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -85,7 +79,6 @@
         android:layout_height="wrap_content"
         android:text="Siguiendo"
         android:textSize="12sp"
-        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/siguiendoTextView"
         app:layout_constraintStart_toStartOf="@id/siguiendoTextView"
         app:layout_constraintEnd_toEndOf="@id/siguiendoTextView"/>
@@ -97,7 +90,6 @@
         android:text="Nombre"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/fotoPerfilImageView"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="8dp"/>
@@ -108,7 +100,6 @@
         android:layout_height="wrap_content"
         android:text="Biografía"
         android:textSize="14sp"
-        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/nombreTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -120,8 +111,6 @@
         android:layout_height="wrap_content"
         android:text="Editar Perfil"
         android:textSize="14sp"
-        android:backgroundTint="@color/dark_background"
-        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/biografiaTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/dark_background">
+    android:padding="16dp">
 
     <!-- Modo Oscuro/Claro -->
     <LinearLayout
@@ -18,8 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Modo Oscuro/Claro"
-            android:textColor="@color/white"
+            android:text="Modo Claro/Oscuro"
             android:textSize="16sp"/>
         <Switch
             android:id="@+id/switchModo"
@@ -34,8 +32,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Cerrar Sesión"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/dark_background"
         android:layout_marginTop="8dp"/>
 
     <Button
@@ -43,8 +39,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Eliminar Cuenta"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/dark_background"
         android:layout_marginTop="8dp"/>
 
     <Button
@@ -52,8 +46,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Obtener Ayuda"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/dark_background"
         android:layout_marginTop="8dp"/>
 
 </LinearLayout>

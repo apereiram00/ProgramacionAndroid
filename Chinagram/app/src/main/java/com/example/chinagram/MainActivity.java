@@ -3,6 +3,8 @@
 
 package com.example.chinagram;
 
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -45,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         prefsHelper = new SharedPreferencesHelper(this);
         int savedTheme = prefsHelper.recuperarTema();
-        AppCompatDelegate.setDefaultNightMode(savedTheme);
+        Log.d("MainActivity", "Cargando tema: " + (savedTheme == AppCompatDelegate.MODE_NIGHT_YES ? "Oscuro" : "Claro"));
+        AppCompatDelegate.setDefaultNightMode(savedTheme); // Aplico el tema guardado por defecto
 
         super.onCreate(savedInstanceState);
 
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         binding.toolbar.setVisibility(View.GONE);
         binding.bottomNavigation.setVisibility(View.GONE);
 
+        Log.d("MainActivity", "Color del ícono en BottomNavigation: " + binding.bottomNavigation.getItemIconTintList());
         // Configuro el NavController desde el NavHostFragment
         try {
             NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -104,18 +108,27 @@ public class MainActivity extends AppCompatActivity {
             // Limpio el menú de la toolbar antes de personalizarlo
             binding.toolbar.getMenu().clear();
             if (currentFragmentId == ID_PERFIL_FRAGMENT) {
-                // Inflo un menú específico para el perfil
                 binding.toolbar.inflateMenu(R.menu.toolbar_menu);
                 MenuItem menuItem = binding.toolbar.getMenu().findItem(R.id.action_menu);
                 if (menuItem != null) {
-                    // Personalizo el ícono del menú color y tamaño (aunque el tamaño definiendolo en el Main funciona como quiere)
-                    menuItem.getIcon().mutate().setTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.white)));
+                    int currentTheme = AppCompatDelegate.getDefaultNightMode();
+                    Log.d("MainActivity", "Tema actual: " + (currentTheme == AppCompatDelegate.MODE_NIGHT_YES ? "Oscuro" : "Claro"));
+                    int color;
+                    if (currentTheme == AppCompatDelegate.MODE_NIGHT_NO) {
+                        color = ContextCompat.getColor(this, android.R.color.background_dark); // Negro explícito en modo claro
+                    } else {
+                        color = ContextCompat.getColor(this, android.R.color.white); // Blanco explícito en modo oscuro
+                    }
+                    Log.d("MainActivity", "Color del ícono del menú antes de aplicar: " + color + " (Hex: #" + String.format("%06X", (0xFFFFFF & color)) + ")");
+                    Drawable icon = menuItem.getIcon();
+                    if (icon != null) {
+                        icon.mutate().setTintList(ColorStateList.valueOf(color));
+                        Log.d("MainActivity", "Color aplicado al ícono: " + color + " (Hex: #" + String.format("%06X", (0xFFFFFF & color)) + ")");
+                    }
                     int size = (int) (24 * getResources().getDisplayMetrics().density);
-                    menuItem.getIcon().setBounds(0, 0, size, size); // Funciona como quiere, no es óptimo
+                    menuItem.getIcon().setBounds(0, 0, size, size);
                 }
                 Log.d("MainActivity", "Menú mostrado para PerfilFragment. Ítems: " + binding.toolbar.getMenu().size());
-            } else {
-                Log.d("MainActivity", "Menú oculto para fragmento " + currentFragmentId);
             }
 
             // Actualizo el título de la toolbar según el fragmento actual

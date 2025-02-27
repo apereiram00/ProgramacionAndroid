@@ -5,6 +5,8 @@ package com.example.chinagram.Model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class SharedPreferencesHelper {
@@ -36,13 +38,16 @@ public class SharedPreferencesHelper {
     }
 
     public void guardarTema(int themeMode) {// Guardo el modo del tema (por ejemplo, MODE_NIGHT_YES o MODE_NIGHT_NO)
+        Log.d("SharedPreferencesHelper", "Guardando tema: " + (themeMode == AppCompatDelegate.MODE_NIGHT_YES ? "Oscuro" : "Claro"));
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(KEY_THEME, themeMode);       // Almaceno el valor del tema
         editor.apply();                            // Aplica cambios
     }
 
-    public int recuperarTema() { // Recupero el tema guardado, uso modo oscuro por defecto si no hay valor
-        return sharedPreferences.getInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_YES);
+    public int recuperarTema() {
+        int theme = sharedPreferences.getInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_NO);
+        Log.d("SharedPreferencesHelper", "Recuperando tema: " + (theme == AppCompatDelegate.MODE_NIGHT_YES ? "Oscuro" : "Claro"));
+        return theme;
     }
 
     public void limpiarLogin() { // Elimino las preferencias relacionadas con el login

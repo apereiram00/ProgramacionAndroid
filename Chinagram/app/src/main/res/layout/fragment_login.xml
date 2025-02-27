@@ -5,8 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center"
-    android:background="@color/dark_background">
+    android:gravity="center">
 
     <ImageView
         android:id="@+id/login_image"
@@ -24,8 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:hint="Correo electrónico"
-        android:textColor="@color/white"
-        android:textColorHint="@color/gray"
         android:inputType="textEmailAddress"
         android:backgroundTint="@color/red" />
 
@@ -35,8 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:hint="Contraseña"
-        android:textColor="@color/white"
-        android:textColorHint="@color/gray"
         android:inputType="textPassword"
         android:backgroundTint="@color/red" />
 
@@ -45,8 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Recuérdame"
-        android:textColor="@color/white" />
+        android:text="Recuérdame" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/login_google_button"
@@ -61,7 +55,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Registrarse"
-        android:backgroundTint="@color/google_blue"
-        android:textColor="@color/white" />
+        android:backgroundTint="@color/google_blue" />
 
 </LinearLayout>
