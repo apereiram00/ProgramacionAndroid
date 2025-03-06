@@ -19,6 +19,7 @@ import com.example.chinagram.Model.PostAdapter;
 import com.example.chinagram.Model.UsuarioRepositorio; // Añadimos esta importación para IsFollowingCallback
 import com.example.chinagram.R;
 import com.example.chinagram.databinding.BusquedaPerfilBinding;
+import com.example.chinagram.utils.DrawableUtils;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class BusquedaPerfilFragment extends Fragment {
@@ -76,7 +77,7 @@ public class BusquedaPerfilFragment extends Fragment {
                 binding.siguiendoTextView.setText(String.valueOf(usuario.siguiendo));
 
                 Glide.with(this)
-                        .load(usuario.fotoPerfilUrl.startsWith("drawable://") ? getResourceFromDrawable(usuario.fotoPerfilUrl) : usuario.fotoPerfilUrl)
+                        .load(usuario.fotoPerfilUrl.startsWith("drawable://") ? DrawableUtils.getResourceFromDrawable(usuario.fotoPerfilUrl) : usuario.fotoPerfilUrl)
                         .placeholder(R.drawable.placeholder)
                         .error(R.drawable.placeholder)
                         .into(binding.fotoPerfilImageView);
@@ -95,21 +96,19 @@ public class BusquedaPerfilFragment extends Fragment {
 
     private void setupFollowButton() {
         if (currentUserId.equals(userId)) {
-            // Si es tu propio perfil, oculta o deshabilita el botón de seguir
+            // Si es mi propio perfil, oculto o deshabilito el botón de seguir
             binding.followButton.setVisibility(View.GONE);
             return;
         }
 
-        perfilViewModel.isFollowing(currentUserId, userId, new UsuarioRepositorio.IsFollowingCallback() { // Cambiado a UsuarioRepositorio.IsFollowingCallback
-            @Override
-            public void onResult(boolean isFollowing) {
-                if (isFollowing) {
-                    binding.followButton.setText("Dejar de Seguir");
-                    binding.followButton.setOnClickListener(v -> unfollowUser());
-                } else {
-                    binding.followButton.setText("Seguir");
-                    binding.followButton.setOnClickListener(v -> followUser());
-                }
+        // Cambiado a UsuarioRepositorio.IsFollowingCallback
+        perfilViewModel.isFollowing(currentUserId, userId, isFollowing -> {
+            if (isFollowing) {
+                binding.followButton.setText("Dejar de Seguir");
+                binding.followButton.setOnClickListener(v -> unfollowUser());
+            } else {
+                binding.followButton.setText("Seguir");
+                binding.followButton.setOnClickListener(v -> followUser());
             }
         });
     }
@@ -121,7 +120,7 @@ public class BusquedaPerfilFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     binding.followButton.setText("Dejar de Seguir");
                     binding.followButton.setOnClickListener(v -> unfollowUser());
-                    updateFollowerCount(); // Actualizar contadores después de seguir
+                    updateFollowerCount(); // Actualizo contadores después de seguir
                 });
             }
 
@@ -142,7 +141,7 @@ public class BusquedaPerfilFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     binding.followButton.setText("Seguir");
                     binding.followButton.setOnClickListener(v -> followUser());
-                    updateFollowerCount(); // Actualizar contadores después de dejar de seguir
+                    updateFollowerCount(); // Actualizo contadores después de dejar de seguir
                 });
             }
 
@@ -171,18 +170,6 @@ public class BusquedaPerfilFragment extends Fragment {
             return String.format("%.1fK", seguidores / 1000000.0);
         }
         return String.valueOf(seguidores);
-    }
-
-    private int getResourceFromDrawable(String drawableUrl) {
-        switch (drawableUrl) {
-            case "drawable://xi_jinping": return R.drawable.xi_jinping;
-            case "drawable://panda": return R.drawable.panda;
-            case "drawable://china_flag": return R.drawable.china_flag;
-            case "drawable://panda_feed": return R.drawable.panda_feed;
-            case "drawable://rice_field": return R.drawable.rice_field;
-            case "drawable://factory": return R.drawable.factory;
-            default: return R.drawable.placeholder;
-        }
     }
 
     @Override

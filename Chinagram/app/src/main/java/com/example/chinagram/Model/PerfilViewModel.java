@@ -26,16 +26,18 @@ public class PerfilViewModel extends AndroidViewModel {
         return usuarioRepositorio.getUsuario(usuarioId);
     }
 
-    public void uploadProfileImage(Uri imageUri, String userId) {
+    public void uploadProfileImage(Uri imageUri, String userId, UsuarioRepositorio.UpdateCallback callback) {
         usuarioRepositorio.uploadProfileImage(imageUri, userId, new UsuarioRepositorio.UpdateCallback() {
             @Override
             public void onUpdateComplete() {
-                updatesCompleted.postValue(true); // Usar postValue() en lugar de setValue()
+                updatesCompleted.postValue(true);
+                if (callback != null) callback.onUpdateComplete();
             }
 
             @Override
             public void onError(String error) {
-                Log.e("PerfilViewModel", "Error al subir imagen: " + error);
+                updatesCompleted.postValue(false);
+                if (callback != null) callback.onError(error);
             }
         });
     }
@@ -44,26 +46,24 @@ public class PerfilViewModel extends AndroidViewModel {
         usuarioRepositorio.ensureUserExists(userId);
     }
 
-    public void updateProfile(String userId, String nombre, String biografia) {
+    public void updateProfile(String userId, String nombre, String biografia, UsuarioRepositorio.UpdateCallback callback) {
         usuarioRepositorio.updateProfile(userId, nombre, biografia, new UsuarioRepositorio.UpdateCallback() {
             @Override
             public void onUpdateComplete() {
-                updatesCompleted.postValue(true); // Usar postValue() en lugar de setValue()
+                updatesCompleted.postValue(true);
+                if (callback != null) callback.onUpdateComplete();
             }
 
             @Override
             public void onError(String error) {
-                Log.e("PerfilViewModel", "Error al actualizar perfil: " + error);
+                updatesCompleted.postValue(false);
+                if (callback != null) callback.onError(error);
             }
         });
     }
 
     public LiveData<List<Post>> getPostsByUser(String userId) {
         return postRepositorio.getPostsByUser(userId);
-    }
-
-    public LiveData<Boolean> getUpdatesCompleted() {
-        return updatesCompleted;
     }
 
     public void followUser(String currentUserId, String targetUserId, UsuarioRepositorio.UpdateCallback callback) {

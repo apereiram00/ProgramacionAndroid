@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import android.content.Context;
 
 
-@Database(entities = {Usuario.class, Post.class, Like.class, Comment.class}, version = 1, exportSchema = false) // Anotación que define la base de datos con Room
+@Database(entities = {Usuario.class, Post.class, Like.class, Comment.class}, version = 2, exportSchema = false) // Anotación que define la base de datos con Room
 public abstract class ChinaDataBase extends RoomDatabase {
 
     // Métodos abstractos que devuelven los DAOs. Estos DAOs permiten interactuar con las tablas de Usuario y Post

@@ -5,14 +5,14 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "likes", primaryKeys = {"usuarioId", "postId"}) // Usamos usuarioId y postId
+@Entity(tableName = "likes", primaryKeys = {"usuarioLikeId", "postLikeId"})
 public class Like {
     @NonNull
-    public String usuarioId; // Añadimos @NonNull para indicar que no puede ser nulo
-    public int postId;
+    public String usuarioLikeId; // Añadimos @NonNull para indicar que no puede ser nulo
+    public int postLikeId;
 
-    public Like(@NonNull String usuarioId, int postId) { // Actualizamos el constructor para reflejar @NonNull
-        this.usuarioId = usuarioId;
-        this.postId = postId;
+    public Like(String usuarioLikeId, int postLikeId) { // Actualizo el constructor para reflejar @NonNull
+        this.usuarioLikeId = usuarioLikeId;
+        this.postLikeId = postLikeId;
     }
 }

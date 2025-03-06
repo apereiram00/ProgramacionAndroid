@@ -30,13 +30,10 @@ public interface UsuarioDAO { // Anotación que marca esta interfaz como un DAO 
     @Query("SELECT nombre FROM user_table WHERE usuarioId = :usuarioId")
     LiveData<String> getUsuarioName(String usuarioId);
 
-    @Query("SELECT * FROM user_table WHERE nombre LIKE :query")
-    List<Usuario> searchByName(String query); // Nuevo método para buscar por nombre
+    @Query("DELETE FROM user_table WHERE usuarioId = :usuarioId")
+    void deleteById(String usuarioId);
 
     @Query("SELECT seguidores FROM user_table WHERE usuarioId = :usuarioId")
     int getSeguidoresCount(String usuarioId);
-
-    @Query("SELECT * FROM user_table WHERE nombre LIKE :query")
-    LiveData<List<Usuario>> searchByNameLiveData(String query); // Nuevo método LiveData para búsquedas en tiempo real
 
 }

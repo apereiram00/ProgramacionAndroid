@@ -14,22 +14,24 @@ public class Usuario {
     public String fotoPerfilUrl;
     public int seguidores;
     public int siguiendo;
+    public int publicaciones;
 
-    // Constructor sin argumentos (no-args constructor) requerido por Firestore
+    // Constructor sin argumentos requerido por Firestore
     public Usuario() {
     }
 
-    // Constructor con parámetros (mantén el que ya tienes)
-    public Usuario(String usuarioId, String nombre, String biografia, String fotoPerfilUrl, int seguidores, int siguiendo) {
+    // Constructor
+    public Usuario(String usuarioId, String nombre, String biografia, String fotoPerfilUrl, int seguidores, int siguiendo, int publicaciones) {
         this.usuarioId = usuarioId;
         this.nombre = nombre;
         this.biografia = biografia;
         this.fotoPerfilUrl = fotoPerfilUrl;
         this.seguidores = seguidores;
         this.siguiendo = siguiendo;
+        this.publicaciones = publicaciones;
     }
 
-    // Getters y setters (opcionales, pero recomendados para Firestore y Room)
+    // Getters y setters (opcionales pero recomendados para Firestore y Room)
     public String getUsuarioId() {
         return usuarioId;
     }
@@ -76,5 +78,13 @@ public class Usuario {
 
     public void setSiguiendo(int siguiendo) {
         this.siguiendo = siguiendo;
+    }
+
+    public int getPublicaciones() {
+        return publicaciones;
+    }
+
+    public void setPublicaciones(int publicaciones) {
+        this.publicaciones = publicaciones;
     }
 }

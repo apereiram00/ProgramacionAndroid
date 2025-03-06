@@ -14,8 +14,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
+
 import com.example.chinagram.MainActivity;
 import com.example.chinagram.Model.SharedPreferencesHelper;
+import com.example.chinagram.Model.UsuarioRepositorio;
 import com.example.chinagram.R;
 import com.example.chinagram.databinding.FragmentOpcionesBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +31,9 @@ public class OpcionesFragment extends Fragment {
     private FragmentOpcionesBinding binding;
     private int intentosEliminar = 0;
     private SharedPreferencesHelper prefsHelper;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private UsuarioRepositorio usuarioRepositorio;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,6 +46,9 @@ public class OpcionesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Inicializo SharedPreferencesHelper
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        usuarioRepositorio = new UsuarioRepositorio(requireContext());
         prefsHelper = new SharedPreferencesHelper(requireContext());
 
         // Configuro el estado inicial del Switch según el modo actual
@@ -50,11 +58,11 @@ public class OpcionesFragment extends Fragment {
         // Listener para cambiar entre modo oscuro y claro
         binding.switchModo.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                // Cambiar a modo oscuro
+                // Cambio a modo oscuro
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 prefsHelper.guardarTema(AppCompatDelegate.MODE_NIGHT_YES); // Guardo modo oscuro
             } else {
-                // Cambiar a modo claro
+                // Cambio a modo claro
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 prefsHelper.guardarTema(AppCompatDelegate.MODE_NIGHT_NO); // Guardo modo claro
             }
@@ -69,20 +77,27 @@ public class OpcionesFragment extends Fragment {
 
         // Listener para cerrar sesión
         binding.cerrarSesionButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
-                    .setMessage("Camarada, ¿seguro que quieres irte? Aquí estás a salvo.")
-                    .setPositiveButton("Sí", (d, which) -> {
-                        if (getActivity() instanceof MainActivity) {
-                            ((MainActivity) getActivity()).signOutUsuario();
-                        }
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
+            if (isAdded()) {
+                new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+                        .setMessage("Camarada, ¿seguro que quieres irte? Aquí estás a salvo.")
+                        .setPositiveButton("Sí", (d, which) -> {
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).signOutUsuario();
+                            }
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            }
         });
 
         // Listener para eliminar cuenta
         binding.eliminarCuentaButton.setOnClickListener(v -> {
             intentosEliminar++;
+            if (!isAdded()) {
+                Log.w("OpcionesFragment", "Fragmento no adjunto, cancelando acción");
+                return;
+            }
+
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom);
             if (intentosEliminar <= 3) {
                 String[] mensajes = {
@@ -96,35 +111,7 @@ public class OpcionesFragment extends Fragment {
                         .show();
             } else {
                 builder.setMessage("Es un honor ser parte de Chinagram. ¿Seguro que quieres eliminar tu cuenta?")
-                        .setPositiveButton("Sí", (dialog, which) -> {
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            if (user != null) {
-                                String userId = user.getUid();
-                                user.delete()
-                                        .addOnCompleteListener(task -> {
-                                            if (task.isSuccessful()) {
-                                                Log.d("OpcionesFragment", "Cuenta eliminada con éxito de Authentication");
-                                                // Borrar datos en Firestore inmediatamente después
-                                                borrarDatosUsuarioEnFirestore(userId);
-                                                if (getActivity() instanceof MainActivity) {
-                                                    NavOptions navOptions = new NavOptions.Builder()
-                                                            .setPopUpTo(R.id.homeFragment, true)
-                                                            .build();
-                                                    ((MainActivity) getActivity()).getNavController()
-                                                            .navigate(R.id.loginFragment, null, navOptions);
-                                                }
-                                            } else {
-                                                Log.w("OpcionesFragment", "Error al eliminar cuenta de Authentication", task.getException());
-                                                Toast.makeText(requireContext(), "Error al eliminar cuenta: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                            intentosEliminar = 0;
-                                        });
-                            } else {
-                                Log.e("OpcionesFragment", "Usuario no autenticado");
-                                Toast.makeText(requireContext(), "No hay usuario autenticado para eliminar", Toast.LENGTH_SHORT).show();
-                                intentosEliminar = 0;
-                            }
-                        })
+                        .setPositiveButton("Sí", (dialog, which) -> eliminarUsuario())
                         .setNegativeButton("No", (dialog, which) -> intentosEliminar = 0)
                         .show();
             }
@@ -132,30 +119,100 @@ public class OpcionesFragment extends Fragment {
 
         // Listener para el botón de soporte
         binding.soporteButton.setOnClickListener(v -> {
-            String[] respuestas = {
-                    "Chinagram nunca falla, revisa tu conexión.",
-                    "Respira hondo, todo está bien.",
-                    "Confía en el sistema."
-            };
-            Random random = new Random();
-            new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
-                    .setMessage(respuestas[random.nextInt(respuestas.length)])
-                    .setPositiveButton("Entendido", null)
-                    .show();
+            if (isAdded()) {
+                String[] respuestas = {
+                        "Chinagram nunca falla, revisa tu conexión.",
+                        "Respira hondo, todo está bien.",
+                        "Confía en el sistema."
+                };
+                Random random = new Random();
+                new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+                        .setMessage(respuestas[random.nextInt(respuestas.length)])
+                        .setPositiveButton("Entendido", null)
+                        .show();
+            }
         });
     }
 
-    private void borrarDatosUsuarioEnFirestore(String userId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private void eliminarUsuario() {
+        if (!isAdded()) {
+            Log.w("OpcionesFragment", "Fragmento no adjunto, cancelando eliminación");
+            return;
+        }
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) {
+            Log.e("OpcionesFragment", "Usuario no autenticado");
+            if (isAdded()) {
+                new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+                        .setMessage("No hay usuario autenticado para eliminar")
+                        .setPositiveButton("Entendido", (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+            intentosEliminar = 0;
+            return;
+        }
+
+        String userId = user.getUid();
+        // Elimino de Firestore
         db.collection("usuarios").document(userId).delete()
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Datos del usuario borrados de Firestore"))
+                .addOnSuccessListener(aVoid -> {
+                    if (!isAdded()) {
+                        Log.w("OpcionesFragment", "Fragmento no adjunto tras eliminar de Firestore");
+                        return;
+                    }
+                    Log.d("OpcionesFragment", "Datos del usuario eliminados de Firestore");
+
+                    // Elimino de Room
+                    usuarioRepositorio.deleteUser(userId);
+
+                    // Elimino de Authentication
+                    user.delete()
+                            .addOnCompleteListener(task -> {
+                                if (!isAdded()) {
+                                    Log.w("OpcionesFragment", "Fragmento no adjunto tras eliminar de Authentication");
+                                    return;
+                                }
+                                if (task.isSuccessful()) {
+                                    Log.d("OpcionesFragment", "Cuenta eliminada con éxito de Authentication");
+                                    if (isAdded()) {
+                                        new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+                                                .setMessage("Cuenta eliminada con éxito")
+                                                .setPositiveButton("Entendido", (dialog, which) -> {
+                                                    dialog.dismiss();
+                                                    // Navegar al LoginFragment después de cerrar el diálogo
+                                                    NavController navController = Navigation.findNavController(requireView());
+                                                    NavOptions navOptions = new NavOptions.Builder()
+                                                            .setPopUpTo(R.id.homeFragment, true)
+                                                            .build();
+                                                    try {
+                                                        navController.navigate(R.id.loginFragment, null, navOptions);
+                                                    } catch (IllegalArgumentException e) {
+                                                        Log.e("OpcionesFragment", "Error al navegar: " + e.getMessage());
+                                                    }
+                                                })
+                                                .show();
+                                    }
+                                } else {
+                                    Log.w("OpcionesFragment", "Error al eliminar cuenta de Authentication", task.getException());
+                                    if (isAdded()) {
+                                        new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+                                                .setMessage("Error al eliminar cuenta: " + task.getException().getMessage())
+                                                .setPositiveButton("Entendido", (dialog, which) -> dialog.dismiss())
+                                                .show();
+                                    }
+                                }
+                                intentosEliminar = 0;
+                            });
+                })
                 .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error al borrar datos del usuario: " + e.getMessage());
-                    // Mostrar un Toast para depurar errores visibles
-                    if (getActivity() != null) {
-                        requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(requireContext(), "Error al borrar datos en Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        });
+                    if (isAdded()) {
+                        Log.e("OpcionesFragment", "Error al eliminar datos de Firestore: " + e.getMessage());
+                        new AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+                                .setMessage("Error al eliminar datos: " + e.getMessage())
+                                .setPositiveButton("Entendido", (dialog, which) -> dialog.dismiss())
+                                .show();
+                        intentosEliminar = 0;
                     }
                 });
     }

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.chinagram.R;
+import com.example.chinagram.utils.DrawableUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,12 +97,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     private int getResourceFromDrawable(String drawableUrl) {
-        switch (drawableUrl) {
-            case "drawable://panda_feed": return R.drawable.panda_feed;
-            case "drawable://rice_field": return R.drawable.rice_field;
-            case "drawable://factory": return R.drawable.factory;
-            default: return R.drawable.placeholder;
-        }
+        return DrawableUtils.getResourceFromDrawable(drawableUrl);
     }
 
     static class PostViewHolder extends RecyclerView.ViewHolder {

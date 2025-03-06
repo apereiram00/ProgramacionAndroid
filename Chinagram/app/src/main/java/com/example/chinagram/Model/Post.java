@@ -12,14 +12,14 @@ public class Post implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     public int postId;
-    public String usuarioId;
+    public String usuarioPostId;
     public String imagenUrl;
     public String descripcion;
     public long fecha;
     public String fileName; // Nuevo campo para el nombre del archivo en Supabase
 
-    public Post(String usuarioId, String imagenUrl, String descripcion, long fecha, String fileName) {
-        this.usuarioId = usuarioId;
+    public Post(String usuarioPostId, String imagenUrl, String descripcion, long fecha, String fileName) {
+        this.usuarioPostId = usuarioPostId;
         this.imagenUrl = imagenUrl;
         this.descripcion = descripcion;
         this.fecha = fecha;
@@ -28,7 +28,7 @@ public class Post implements Parcelable {
 
     protected Post(Parcel in) {
         postId = in.readInt();
-        usuarioId = in.readString();
+        usuarioPostId = in.readString();
         imagenUrl = in.readString();
         descripcion = in.readString();
         fecha = in.readLong();
@@ -55,7 +55,7 @@ public class Post implements Parcelable {
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(postId);
-        dest.writeString(usuarioId);
+        dest.writeString(usuarioPostId);
         dest.writeString(imagenUrl);
         dest.writeString(descripcion);
         dest.writeLong(fecha);

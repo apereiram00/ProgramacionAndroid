@@ -14,12 +14,12 @@ public interface PostDAO { // Anotación que marca esta interfaz como un DAO par
     @Insert
     void insert(Post post); // Inserta un nuevo Post en la tabla "post_table"
 
-    @Query("SELECT * FROM post_table WHERE usuarioId = :usuarioId ORDER BY fecha DESC") // Consulta que obtiene todos los posts de un usuario específico
-    LiveData<List<Post>> getPostsByUser(String usuarioId);
+    @Query("SELECT * FROM post_table WHERE usuarioPostId = :usuarioPostId ORDER BY fecha DESC") // Consulta que obtiene todos los posts de un usuario específico
+    LiveData<List<Post>> getPostsByUser(String usuarioPostId);
 
-    @Query("DELETE FROM post_table WHERE postId = :postId") // Corregimos "postid" a "postId"
+    @Query("DELETE FROM post_table WHERE postId = :postId") // Consulta para borrar un post
     void delete(int postId);
 
-    @Query("SELECT * FROM post_table WHERE postId = :postId") // Nuevo método para obtener un Post por su postId
+    @Query("SELECT * FROM post_table WHERE postId = :postId") // Consulta para obtener un Post por su postId
     Post getPostById(int postId);
 }

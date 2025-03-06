@@ -21,7 +21,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:imeOptions="actionSearch" />
+        android:imeOptions="actionSearch"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:inputType="textNoSuggestions|text" />
 
     <!-- RecyclerView para imágenes/videos en cuadrícula -->
     <androidx.recyclerview.widget.RecyclerView

@@ -1,3 +1,4 @@
+// com.example.chinagram.Model.UsuarioRepositorio.java
 package com.example.chinagram.Model;
 
 import android.content.Context;
@@ -11,24 +12,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.example.chinagram.utils.DrawableUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 public class UsuarioRepositorio {
     private final UsuarioDAO usuarioDAO;
     private final ExecutorService executorService;
     private final Context context;
-
-    public interface SearchCallback {
-        void onSearchComplete(List<Usuario> users);
-    }
 
     public interface UpdateCallback {
         void onUpdateComplete();
@@ -37,6 +37,10 @@ public class UsuarioRepositorio {
 
     public interface IsFollowingCallback {
         void onResult(boolean isFollowing);
+    }
+
+    public interface VerificationCallback {
+        void onVerificationResult(boolean exists, String message);
     }
 
     public UsuarioRepositorio(Context context) {
@@ -58,57 +62,95 @@ public class UsuarioRepositorio {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 db.collection("usuarios").document(userId).get()
                         .addOnSuccessListener(documentSnapshot -> {
-                            executorService.execute(() -> { // Mover la inserción a executorService
+                            executorService.execute(() -> {
                                 if (documentSnapshot.exists()) {
-                                    // Si existe en Firestore, usa los datos de ahí
                                     String nombre = documentSnapshot.getString("nombre");
                                     String biografia = documentSnapshot.getString("biografia");
                                     String fotoPerfilUrl = documentSnapshot.getString("fotoPerfilUrl");
-                                    int seguidores = documentSnapshot.getLong("seguidores").intValue();
-                                    int siguiendo = documentSnapshot.getLong("siguiendo").intValue();
+                                    Long seguidoresLong = documentSnapshot.getLong("seguidores");
+                                    Long siguiendoLong = documentSnapshot.getLong("siguiendo");
+                                    int seguidores = seguidoresLong != null ? seguidoresLong.intValue() : 0;
+                                    int siguiendo = siguiendoLong != null ? siguiendoLong.intValue() : 0;
+                                    int publicaciones = documentSnapshot.getLong("publicaciones") != null ? documentSnapshot.getLong("publicaciones").intValue() : 0;
                                     Usuario nuevoUsuario = new Usuario(userId, nombre,
                                             biografia != null ? biografia : getRandomBio(),
-                                            fotoPerfilUrl != null ? fotoPerfilUrl : "drawable://panda",
-                                            seguidores, siguiendo);
+                                            fotoPerfilUrl != null ? fotoPerfilUrl : DrawableUtils.getRandomDrawableUrl(),
+                                            seguidores, siguiendo, publicaciones);
                                     usuarioDAO.insert(nuevoUsuario);
-                                    Log.d("UsuarioRepositorio", "Usuario sincronizado desde Firestore en Room con nombre: " + nombre);
+                                    Log.d("UsuarioRepositorio", "Usuario sincronizado desde Firestore en Room con nombre: " + nombre + " y foto: " + nuevoUsuario.fotoPerfilUrl);
                                 } else {
-                                    // Si no existe en Firestore, crea un usuario predeterminado con el nombre basado en el correo
                                     FirebaseAuth auth = FirebaseAuth.getInstance();
                                     FirebaseUser firebaseUser = auth.getCurrentUser();
                                     if (firebaseUser != null) {
                                         String email = firebaseUser.getEmail();
-                                        String nombre = extraerNombreUsuario(email); // "grok" de "grok@gmail.com"
-                                        Usuario nuevoUsuario = new Usuario(userId, nombre, getRandomBio(), "drawable://panda", 0, 0);
+                                        String nombre = extraerNombreUsuario(email);
+                                        String fotoUrl = DrawableUtils.getRandomDrawableUrl();
+                                        Log.d("UsuarioRepositorio", "Foto aleatoria generada para nuevo usuario: " + fotoUrl);
+                                        Usuario nuevoUsuario = new Usuario(userId, nombre, getRandomBio(), fotoUrl, 0, 0, 0);
                                         usuarioDAO.insert(nuevoUsuario);
-                                        // Guardar en Firestore para consistencia
-                                        guardarUsuarioEnFirestore(userId, nombre, getRandomBio(), "drawable://panda");
-                                        Log.d("UsuarioRepositorio", "Usuario creado en Room y Firestore con nombre desde correo: " + nombre);
+                                        guardarUsuarioEnFirestore(userId, nombre, getRandomBio(), fotoUrl);
+                                        Log.d("UsuarioRepositorio", "Usuario creado en Room y Firestore con nombre: " + nombre + " y foto: " + fotoUrl);
                                     } else {
-                                        // Fallback si no hay usuario autenticado
-                                        Usuario nuevoUsuario = new Usuario(userId, "Usuario", getRandomBio(), "drawable://panda", 0, 0);
+                                        String fotoUrl = DrawableUtils.getRandomDrawableUrl();
+                                        Log.d("UsuarioRepositorio", "Foto aleatoria generada para usuario sin auth: " + fotoUrl);
+                                        Usuario nuevoUsuario = new Usuario(userId, "Usuario", getRandomBio(), fotoUrl, 0, 0, 0);
                                         usuarioDAO.insert(nuevoUsuario);
-                                        Log.d("UsuarioRepositorio", "Usuario creado en Room con nombre predeterminado: Usuario");
+                                        Log.d("UsuarioRepositorio", "Usuario creado en Room con nombre predeterminado: Usuario y foto: " + fotoUrl);
                                     }
                                 }
                             });
                         })
                         .addOnFailureListener(e -> {
-                            executorService.execute(() -> { // Mover el fallback a executorService
+                            executorService.execute(() -> {
                                 Log.e("UsuarioRepositorio", "Error al verificar usuario en Firestore: " + e.getMessage());
-                                // Fallback: crear usuario predeterminado con el nombre basado en el correo si está autenticado
                                 FirebaseAuth auth = FirebaseAuth.getInstance();
                                 FirebaseUser firebaseUser = auth.getCurrentUser();
                                 String nombre = firebaseUser != null ? extraerNombreUsuario(firebaseUser.getEmail()) : "Usuario";
-                                Usuario nuevoUsuario = new Usuario(userId, nombre, getRandomBio(), "drawable://panda", 0, 0);
+                                String fotoUrl = DrawableUtils.getRandomDrawableUrl();
+                                Log.d("UsuarioRepositorio", "Foto aleatoria generada en fallback: " + fotoUrl);
+                                Usuario nuevoUsuario = new Usuario(userId, nombre, getRandomBio(), fotoUrl, 0, 0, 0);
                                 usuarioDAO.insert(nuevoUsuario);
                                 if (firebaseUser != null) {
-                                    guardarUsuarioEnFirestore(userId, nombre, getRandomBio(), "drawable://panda");
+                                    guardarUsuarioEnFirestore(userId, nombre, getRandomBio(), fotoUrl);
                                 }
-                                Log.d("UsuarioRepositorio", "Usuario creado en Room con fallback: " + nombre);
+                                Log.d("UsuarioRepositorio", "Usuario creado en Room con fallback: " + nombre + " y foto: " + fotoUrl);
                             });
                         });
             }
+        });
+    }
+
+    public void ensureUserExistsAndSync(String userId, Usuario usuario, UpdateCallback callback) {
+        executorService.execute(() -> {
+            usuarioDAO.insert(usuario);
+            Log.d("UsuarioRepositorio", "Usuario sincronizado en Room con nombre: " + usuario.nombre + " y foto: " + usuario.fotoPerfilUrl);
+            guardarUsuarioEnFirestore(userId, usuario.nombre, usuario.biografia, usuario.fotoPerfilUrl);
+            Log.d("UsuarioRepositorio", "Usuario sincronizado en Firestore con nombre: " + usuario.nombre + " y foto: " + usuario.fotoPerfilUrl);
+            if (callback != null) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(callback::onUpdateComplete);
+            }
+        });
+    }
+
+    // Método para eliminar usuario de Room
+    public void deleteUser(String userId) {
+        executorService.execute(() -> {
+            usuarioDAO.deleteById(userId);
+            Log.d("UsuarioRepositorio", "Usuario eliminado de Room con ID: " + userId);
+        });
+    }
+
+    // Nuevo método para verificar si un usuario existe en Room
+    public void verifyUserExists(String userId, VerificationCallback callback) {
+        executorService.execute(() -> {
+            Usuario usuario = usuarioDAO.getUsuarioSync(userId);
+            boolean exists = usuario != null;
+            String message = exists ? "Usuario sigue en Room después de eliminar: " + usuario.nombre : "Confirmado: Usuario no está en Room después de eliminar";
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                if (callback != null) {
+                    callback.onVerificationResult(exists, message);
+                }
+            });
         });
     }
 
@@ -146,26 +188,30 @@ public class UsuarioRepositorio {
                     usuario.fotoPerfilUrl = photoUrl;
                     usuarioDAO.update(usuario);
                     Log.d("UsuarioRepositorio", "Usuario actualizado en Room con fotoPerfilUrl: " + usuario.fotoPerfilUrl);
+
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("usuarios").document(userId)
+                            .update("fotoPerfilUrl", photoUrl)
+                            .addOnSuccessListener(aVoid -> Log.d("UsuarioRepositorio", "Foto de perfil sincronizada con Firestore: " + photoUrl))
+                            .addOnFailureListener(e -> Log.e("UsuarioRepositorio", "Error al sincronizar foto con Firestore: " + e.getMessage()));
                 } else {
                     Log.w("UsuarioRepositorio", "Usuario no encontrado, creando uno nuevo para userId: " + userId);
                     FirebaseAuth auth = FirebaseAuth.getInstance();
                     FirebaseUser firebaseUser = auth.getCurrentUser();
                     String nombre = firebaseUser != null ? extraerNombreUsuario(firebaseUser.getEmail()) : "Usuario";
-                    Usuario nuevoUsuario = new Usuario(userId, nombre, getRandomBio(), photoUrl, 0, 0);
-                    usuarioDAO.insert(nuevoUsuario); // Esto ya está en executorService, así que no hay problema
+                    String fotoUrl = DrawableUtils.getRandomDrawableUrl();
+                    Usuario nuevoUsuario = new Usuario(userId, nombre, getRandomBio(), fotoUrl, 0, 0, 0);
+                    usuarioDAO.insert(nuevoUsuario);
+                    guardarUsuarioEnFirestore(userId, nombre, getRandomBio(), photoUrl);
                     Log.d("UsuarioRepositorio", "Usuario creado en Room con fotoPerfilUrl: " + nuevoUsuario.fotoPerfilUrl);
                 }
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onUpdateComplete();
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(callback::onUpdateComplete);
                 }
             } catch (IOException e) {
                 Log.e("UsuarioRepositorio", "Error al subir imagen: " + e.getMessage());
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onError(e.getMessage());
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onError(e.getMessage()));
                 }
             }
         });
@@ -180,26 +226,30 @@ public class UsuarioRepositorio {
                     usuario.biografia = biografia;
                     usuarioDAO.update(usuario);
                     Log.d("UsuarioRepositorio", "Perfil actualizado en Room: " + nombre + ", " + biografia);
+
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("usuarios").document(userId)
+                            .update("nombre", nombre, "biografia", biografia)
+                            .addOnSuccessListener(aVoid -> Log.d("UsuarioRepositorio", "Perfil sincronizado con Firestore: " + nombre + ", " + biografia))
+                            .addOnFailureListener(e -> Log.e("UsuarioRepositorio", "Error al sincronizar perfil con Firestore: " + e.getMessage()));
                 } else {
                     Log.w("UsuarioRepositorio", "Usuario no encontrado para actualizar perfil: " + userId);
                     FirebaseAuth auth = FirebaseAuth.getInstance();
                     FirebaseUser firebaseUser = auth.getCurrentUser();
                     String nombreDefault = firebaseUser != null ? extraerNombreUsuario(firebaseUser.getEmail()) : "Usuario";
-                    Usuario nuevoUsuario = new Usuario(userId, nombreDefault, biografia, "drawable://panda", 0, 0);
+                    String fotoUrl = DrawableUtils.getRandomDrawableUrl();
+                    Usuario nuevoUsuario = new Usuario(userId, nombre, getRandomBio(), fotoUrl, 0, 0, 0);
                     usuarioDAO.insert(nuevoUsuario);
-                    Log.d("UsuarioRepositorio", "Usuario creado en Room con perfil: " + nombreDefault + ", " + biografia);
+                    guardarUsuarioEnFirestore(userId, nombreDefault, biografia, fotoUrl);
+                    Log.d("UsuarioRepositorio", "Usuario creado en Room con perfil: " + nombreDefault + ", " + biografia + " y foto: " + fotoUrl);
                 }
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onUpdateComplete();
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(callback::onUpdateComplete);
                 }
             } catch (Exception e) {
                 Log.e("UsuarioRepositorio", "Error al actualizar perfil: " + e.getMessage());
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onError(e.getMessage());
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onError(e.getMessage()));
                 }
             }
         });
@@ -208,11 +258,9 @@ public class UsuarioRepositorio {
     public void followUser(String currentUserId, String targetUserId, UpdateCallback callback) {
         executorService.execute(() -> {
             try {
-                // Verificar si ya sigues al usuario usando Room (simplificado, sin tabla Following por ahora)
                 Usuario currentUser = usuarioDAO.getUsuarioSync(currentUserId);
                 Usuario targetUser = usuarioDAO.getUsuarioSync(targetUserId);
                 if (currentUser != null && targetUser != null) {
-                    // Suponemos que solo incrementamos si no estás siguiendo (lógica simplificada)
                     currentUser.siguiendo += 1;
                     targetUser.seguidores += 1;
                     usuarioDAO.update(currentUser);
@@ -220,16 +268,12 @@ public class UsuarioRepositorio {
                     Log.d("UsuarioRepositorio", "Usuario " + currentUserId + " ahora sigue a " + targetUserId);
                 }
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onUpdateComplete();
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(callback::onUpdateComplete);
                 }
             } catch (Exception e) {
                 Log.e("UsuarioRepositorio", "Error al seguir usuario: " + e.getMessage());
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onError(e.getMessage());
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onError(e.getMessage()));
                 }
             }
         });
@@ -238,7 +282,6 @@ public class UsuarioRepositorio {
     public void unfollowUser(String currentUserId, String targetUserId, UpdateCallback callback) {
         executorService.execute(() -> {
             try {
-                // Verificar si sigues al usuario usando Room (simplificado, sin tabla Following por ahora)
                 Usuario currentUser = usuarioDAO.getUsuarioSync(currentUserId);
                 Usuario targetUser = usuarioDAO.getUsuarioSync(targetUserId);
                 if (currentUser != null && targetUser != null) {
@@ -249,16 +292,12 @@ public class UsuarioRepositorio {
                     Log.d("UsuarioRepositorio", "Usuario " + currentUserId + " dejó de seguir a " + targetUserId);
                 }
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onUpdateComplete();
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(callback::onUpdateComplete);
                 }
             } catch (Exception e) {
                 Log.e("UsuarioRepositorio", "Error al dejar de seguir usuario: " + e.getMessage());
                 if (callback != null) {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onError(e.getMessage());
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onError(e.getMessage()));
                 }
             }
         });
@@ -267,25 +306,18 @@ public class UsuarioRepositorio {
     public void isFollowing(String currentUserId, String targetUserId, final IsFollowingCallback callback) {
         executorService.execute(() -> {
             try {
-                // Lógica simplificada para verificar si sigues al usuario usando los contadores
                 Usuario currentUser = usuarioDAO.getUsuarioSync(currentUserId);
                 if (currentUser != null) {
                     int followingCount = currentUser.siguiendo;
                     int followersCount = usuarioDAO.getSeguidoresCount(targetUserId);
                     boolean isFollowing = followingCount > 0 && followingCount == followersCount;
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onResult(isFollowing);
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onResult(isFollowing));
                 } else {
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        callback.onResult(false);
-                    });
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onResult(false));
                 }
             } catch (Exception e) {
                 Log.e("UsuarioRepositorio", "Error al verificar si sigue: " + e.getMessage());
-                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                    callback.onResult(false);
-                });
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onResult(false));
             }
         });
     }
@@ -293,15 +325,24 @@ public class UsuarioRepositorio {
     public LiveData<List<Usuario>> searchUsersByName(String query) {
         MutableLiveData<List<Usuario>> usuariosLiveData = new MutableLiveData<>();
         executorService.execute(() -> {
+            if (query == null || query.trim().isEmpty()) {
+                Log.d("UsuarioRepositorio", "Query vacía, devolviendo lista vacía");
+                usuariosLiveData.postValue(new ArrayList<>());
+                return;
+            }
+
+            String queryLowerCase = query.trim().toLowerCase();
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            Log.d("UsuarioRepositorio", "Buscando usuarios con query: " + query);
+            Log.d("UsuarioRepositorio", "Buscando usuarios con query (en minúsculas): " + queryLowerCase);
             db.collection("usuarios")
-                    .whereGreaterThanOrEqualTo("nombre", query)
-                    .whereLessThanOrEqualTo("nombre", query + "\uf8ff")
+                    .whereGreaterThanOrEqualTo("nombre", queryLowerCase)
+                    .whereLessThanOrEqualTo("nombre", queryLowerCase + "\uf8ff")
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
                         List<Usuario> usuarios = new ArrayList<>();
+                        Log.d("UsuarioRepositorio", "Documentos devueltos por Firestore: " + querySnapshot.size());
                         for (DocumentSnapshot document : querySnapshot) {
+                            Log.d("UsuarioRepositorio", "Documento encontrado: " + document.getData());
                             Usuario usuario = document.toObject(Usuario.class);
                             if (usuario != null) {
                                 Log.d("UsuarioRepositorio", "Usuario encontrado: " + usuario.nombre + " (ID: " + usuario.usuarioId + ")");
@@ -312,7 +353,10 @@ public class UsuarioRepositorio {
                         usuariosLiveData.postValue(usuarios);
                     })
                     .addOnFailureListener(e -> {
-                        Log.e("UsuarioRepositorio", "Error al buscar usuarios: " + e.getMessage());
+                        Log.e("UsuarioRepositorio", "Error al buscar usuarios: " + e.getMessage(), e);
+                        if (e instanceof FirebaseFirestoreException && ((FirebaseFirestoreException) e).getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            Log.e("UsuarioRepositorio", "Permiso denegado para la consulta. Verifica las reglas de Firestore.");
+                        }
                         usuariosLiveData.postValue(new ArrayList<>());
                     });
         });
@@ -320,24 +364,31 @@ public class UsuarioRepositorio {
     }
 
     public LiveData<String> getUsuarioName(String usuarioId) {
-        // Devuelve el nombre del usuario como LiveData usando Room
         return usuarioDAO.getUsuarioName(usuarioId);
     }
 
     private String extraerNombreUsuario(String email) {
-        // Extrae la parte antes del "@" del correo (por ejemplo, "grok" de "grok@gmail.com")
         int atIndex = email.indexOf('@');
         if (atIndex != -1) {
             return email.substring(0, atIndex);
         }
-        return email; // Si no hay "@", devolvemos el email completo como fallback
+        return email;
     }
 
     private void guardarUsuarioEnFirestore(String userId, String nombre, String biografia, String photoUrl) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("usuarios").document(userId).set(
-                        new Usuario(userId, nombre, biografia, photoUrl, 0, 0))
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Usuario guardado en Firestore con nombre: " + nombre))
+        String nombreLowerCase = nombre != null ? nombre.toLowerCase() : "usuario";
+        Map<String, Object> usuarioData = new HashMap<>();
+        usuarioData.put("usuarioId", userId);
+        usuarioData.put("nombre", nombreLowerCase);
+        usuarioData.put("biografia", biografia);
+        usuarioData.put("fotoPerfilUrl", photoUrl);
+        usuarioData.put("seguidores", 0);
+        usuarioData.put("siguiendo", 0);
+        usuarioData.put("publicaciones", 0);
+
+        db.collection("usuarios").document(userId).set(usuarioData)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Usuario guardado en Firestore con nombre: " + nombreLowerCase + " y foto: " + photoUrl))
                 .addOnFailureListener(e -> Log.e("Firestore", "Error al guardar usuario: " + e.getMessage()));
     }
 

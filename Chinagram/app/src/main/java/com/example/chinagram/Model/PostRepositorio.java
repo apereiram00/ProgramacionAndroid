@@ -6,6 +6,9 @@ import android.net.Uri;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -76,6 +79,17 @@ public class PostRepositorio {
                 postDAO.insert(post);
                 Log.d("PostRepositorio", "Publicación guardada en Room con URL: " + photoUrl + ", Descripción: " + descripcion + ", fileName: " + uniqueFileName);
 
+                Usuario usuario = usuarioDAO.getUsuarioSync(usuarioId);
+                if (usuario != null) {
+                    usuario.publicaciones += 1;
+                    usuarioDAO.update(usuario);
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("usuarios").document(usuarioId)
+                            .update("publicaciones", usuario.publicaciones)
+                            .addOnSuccessListener(aVoid -> Log.d("PostRepositorio", "Publicaciones actualizadas en Firestore: " + usuario.publicaciones))
+                            .addOnFailureListener(e -> Log.e("PostRepositorio", "Error al actualizar publicaciones en Firestore: " + e.getMessage()));
+                }
+
                 if (callback != null) {
                     new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                         callback.onUpdateComplete();
@@ -104,7 +118,7 @@ public class PostRepositorio {
                 if (post != null && post.fileName != null) {
                     Log.d("PostRepositorio", "Intentando eliminar archivo de Supabase con fileName: " + post.fileName);
                     String bucketName = "post-perfil";
-                    String filePath = "public/" + post.usuarioId + "/" + post.fileName;
+                    String filePath = "public/" + post.usuarioPostId + "/" + post.fileName;
                     try {
                         SupabaseClient.deleteFile(bucketName, filePath); // Usamos el método deleteFile que crearemos
                         Log.d("PostRepositorio", "Archivo eliminado de Supabase para postId: " + postId);
@@ -118,6 +132,20 @@ public class PostRepositorio {
                 // Eliminar de Room
                 postDAO.delete(postId);
                 Log.d("PostRepositorio", "Publicación eliminada de Room con ID: " + postId);
+
+                // Actualizar conteo de publicaciones en Room y Firestore
+                if (post != null) {
+                    Usuario usuario = usuarioDAO.getUsuarioSync(post.usuarioPostId);
+                    if (usuario != null && usuario.publicaciones > 0) {
+                        usuario.publicaciones -= 1;
+                        usuarioDAO.update(usuario);
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        db.collection("usuarios").document(post.usuarioPostId)
+                                .update("publicaciones", usuario.publicaciones)
+                                .addOnSuccessListener(aVoid -> Log.d("PostRepositorio", "Publicaciones actualizadas en Firestore: " + usuario.publicaciones))
+                                .addOnFailureListener(e -> Log.e("PostRepositorio", "Error al actualizar publicaciones en Firestore: " + e.getMessage()));
+                    }
+                }
 
                 // Notificar en el hilo principal
                 if (callback != null) {
@@ -150,16 +178,15 @@ public class PostRepositorio {
     public void addComment(String usuarioId, int postId, String comment) {
         executorService.execute(() -> {
             // Obtener el nombre del usuario desde UsuarioDAO usando usuarioId
-            Usuario usuario = usuarioDAO.getUsuarioSync(usuarioId); // Asegúrate de que UsuarioDAO tenga getUsuarioSync
+            Usuario usuario = usuarioDAO.getUsuarioSync(usuarioId); // Me aseguro de que UsuarioDAO tenga getUsuarioSync
             String nombre = (usuario != null) ? usuario.nombre : "Usuario Desconocido";
             commentDAO.insert(new Comment(postId, usuarioId, nombre, comment, System.currentTimeMillis()));
             Log.d("PostRepositorio", "Comentario añadido: postId=" + postId + ", usuarioId=" + usuarioId + ", nombre=" + nombre + ", comentario=" + comment);
         });
     }
 
-    // com.example.chinagram.Model.PostRepositorio.java
     public LiveData<List<Comment>> getComments(int postId) {
-        return (LiveData<List<Comment>>) commentDAO.getCommentsByPost(postId); // Usamos LiveData desde CommentDAO
+        return commentDAO.getCommentsByPost(postId); // Uso LiveData desde CommentDAO
     }
 
     public LiveData<Boolean> getLikeStatus(String usuarioId, int postId) {

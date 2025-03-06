@@ -26,7 +26,7 @@ public class DetallesPostFragment extends Fragment {
 
     private FragmentDetallesPostBinding binding;
     private PostViewModel postViewModel;
-    private String usuarioId; // Usamos usuarioId para consistencia con tus modelos
+    private String usuarioId;
     private Post currentPost;
     private boolean isLiked = false;
     private List<Comment> comments = new ArrayList<>();
@@ -44,7 +44,7 @@ public class DetallesPostFragment extends Fragment {
         usuarioId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         postViewModel = new ViewModelProvider(this).get(PostViewModel.class);
 
-        // Obtener el Post desde los argumentos
+        // Obtengo el Post desde los argumentos
         currentPost = getArguments().getParcelable("post");
         if (currentPost == null) {
             Log.e("DetallesPostFragment", "No se recibió un Post válido");
@@ -59,17 +59,17 @@ public class DetallesPostFragment extends Fragment {
     }
 
     private void setupPostDetails() {
-        // Mostrar la imagen del post
+        // Muestro la imagen del post
         Glide.with(this)
                 .load(currentPost.imagenUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder)
                 .into(binding.postImage);
 
-        // Mostrar el título (usamos "descripcion" como definiste en Post)
+        // Muestro el título (usamos "descripcion" como definiste en Post)
         binding.postTitle.setText(currentPost.descripcion);
 
-        // Cargar estado inicial de "Me gusta" (persistente, desde Room)
+        // Cargo estado inicial de "Me gusta" (persistente, desde Room)
         checkLikeStatus();
     }
 
@@ -79,7 +79,7 @@ public class DetallesPostFragment extends Fragment {
             updateLikeIcon();
             postViewModel.toggleLike(usuarioId, currentPost.postId, isLiked);
             Log.d("DetallesPostFragment", "Me gusta actualizado por usuarioId=" + usuarioId + ": " + isLiked);
-            updateLikeCount(); // Actualizar el conteo de Me gusta (implementaremos esto)
+            updateLikeCount(); // Actualizo el conteo de Me gusta
         });
     }
 
@@ -88,15 +88,15 @@ public class DetallesPostFragment extends Fragment {
             String comment = binding.commentEditText.getText().toString().trim();
             if (!comment.isEmpty()) {
                 postViewModel.addComment(usuarioId, currentPost.postId, comment);
-                binding.commentEditText.setText(""); // Limpiar el campo
+                binding.commentEditText.setText(""); // Limpio el campo
                 Log.d("DetallesPostFragment", "Comentario añadido por usuarioId=" + usuarioId + ": " + comment);
             }
         });
     }
 
     private void setupDeleteButton() {
-        // Solo mostrar el botón de eliminar si el usuario logueado es el propietario
-        if (usuarioId.equals(currentPost.usuarioId)) {
+        // Solo muestro el botón de eliminar si el usuario logueado es el propietario
+        if (usuarioId.equals(currentPost.usuarioPostId)) {
             binding.deletePostButton.setVisibility(View.VISIBLE);
             binding.deletePostButton.setOnClickListener(v -> {
                 postViewModel.deletePost(currentPost.postId, success -> {
@@ -105,12 +105,12 @@ public class DetallesPostFragment extends Fragment {
                         NavController navController = Navigation.findNavController(binding.getRoot());
                         // Verificar si PerfilFragment está en el back stack antes de pop
                         if (navController.getBackStackEntry(R.id.perfilFragment) != null) {
-                            navController.popBackStack(R.id.perfilFragment, false); // Navegar de vuelta a PerfilFragment
+                            navController.popBackStack(R.id.perfilFragment, false); // Navego de vuelta a PerfilFragment
                         } else {
                             Log.w("DetallesPostFragment", "PerfilFragment no está en el back stack, navegando directamente");
-                            // Navegar explícitamente a PerfilFragment si no está en el back stack
+                            // Navego explícitamente a PerfilFragment si no está en el back stack
                             Bundle args = new Bundle();
-                            args.putString("userId", currentPost.usuarioId); // Pasar el usuarioId del perfil
+                            args.putString("userId", currentPost.usuarioPostId); // Paso el usuarioId del perfil
                             navController.navigate(R.id.perfilFragment, args);
                         }
                     } else {
@@ -128,7 +128,7 @@ public class DetallesPostFragment extends Fragment {
             if (isLiked != null) {
                 this.isLiked = isLiked;
                 updateLikeIcon();
-                updateLikeCount(); // Actualizar el conteo de Me gusta también
+                updateLikeCount(); // Actualizo el conteo de Me gusta también
             }
         });
     }
@@ -159,12 +159,11 @@ public class DetallesPostFragment extends Fragment {
         });
     }
 
-    // com.example.chinagram.UI.DetallesPostFragment.java
     private void updateCommentsView() {
         StringBuilder commentsText = new StringBuilder("\n");
         for (Comment comment : comments) {
-            // Obtener el nombre actual del usuario usando usuarioId desde Usuario
-            postViewModel.getUsuarioName(comment.usuarioId).observe(getViewLifecycleOwner(), nombre -> {
+            // Obtengo el nombre actual del usuario usando usuarioId desde Usuario
+            postViewModel.getUsuarioName(comment.usuarioCommentId).observe(getViewLifecycleOwner(), nombre -> {
                 if (nombre != null) {
                     commentsText.append(nombre).append(": ").append(comment.text).append("\n");
                     binding.commentsTextView.setText(commentsText.toString());

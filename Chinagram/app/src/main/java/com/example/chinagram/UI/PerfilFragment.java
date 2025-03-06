@@ -1,4 +1,3 @@
-// com.example.chinagram.UI.PerfilFragment.java
 package com.example.chinagram.UI;
 
 import android.content.Intent;
@@ -26,6 +25,7 @@ import com.example.chinagram.Model.Post;
 import com.example.chinagram.Model.PostAdapter;
 import com.example.chinagram.R;
 import com.example.chinagram.databinding.FragmentPerfilBinding;
+import com.example.chinagram.utils.DrawableUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,12 +60,13 @@ public class PerfilFragment extends Fragment {
             if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
                 Uri imageUri = result.getData().getData();
                 if (imageUri != null) {
-                    perfilViewModel.uploadProfileImage(imageUri, userId);
+                    perfilViewModel.uploadProfileImage(imageUri, userId, null);
                 }
             }
         });
 
         binding.editarPerfilButton.setOnClickListener(v -> navegarEditarPerfil(v));
+
     }
 
     private void setupRecyclerView() {
@@ -77,7 +78,7 @@ public class PerfilFragment extends Fragment {
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.grid_spacing);
         binding.publicacionesRecyclerView.addItemDecoration(new GridSpacingItemDecoration(3, spacingInPixels, true));
 
-        // Añadir clic en las publicaciones
+        // Añado clic en las publicaciones
         postAdapter.setOnItemClickListener(post -> {
             Bundle args = new Bundle();
             args.putParcelable("post", post);
@@ -88,16 +89,18 @@ public class PerfilFragment extends Fragment {
     private void observeUserData() {
         perfilViewModel.getUsuario(userId).observe(getViewLifecycleOwner(), usuario -> {
             if (usuario != null) {
+                // Solo actualizo si no hay argumentos recientes (evitar sobrescribir la vista previa)
+                if (getArguments() == null || !getArguments().containsKey("nuevaFotoUrl")) {
+                    Glide.with(this)
+                            .load(usuario.fotoPerfilUrl.startsWith("drawable://") ? DrawableUtils.getResourceFromDrawable(usuario.fotoPerfilUrl) : usuario.fotoPerfilUrl)
+                            .placeholder(R.drawable.placeholder)
+                            .error(R.drawable.placeholder)
+                            .into(binding.fotoPerfilImageView);
+                }
                 binding.nombreTextView.setText(usuario.nombre);
                 binding.biografiaTextView.setText(usuario.biografia);
-                binding.seguidoresTextView.setText(formatSeguidores(usuario.seguidores));
                 binding.siguiendoTextView.setText(String.valueOf(usuario.siguiendo));
-
-                Glide.with(this)
-                        .load(usuario.fotoPerfilUrl.startsWith("drawable://") ? getResourceFromDrawable(usuario.fotoPerfilUrl) : usuario.fotoPerfilUrl)
-                        .placeholder(R.drawable.placeholder)
-                        .error(R.drawable.placeholder)
-                        .into(binding.fotoPerfilImageView);
+                binding.publicacionesTextView.setText(String.valueOf(usuario.publicaciones));
             }
         });
     }
@@ -127,33 +130,12 @@ public class PerfilFragment extends Fragment {
         navController.navigate(R.id.action_perfilFragment_to_editarPerfilFragment, null, navOptions);
     }
 
-    private String formatSeguidores(int seguidores) {
-        if (seguidores >= 1000000) {
-            return String.format("%.1fM", seguidores / 1000000.0);
-        } else if (seguidores >= 1000) {
-            return String.format("%.1fK", seguidores / 1000.0);
-        }
-        return String.valueOf(seguidores);
-    }
-
     private List<Post> getDefaultPosts() {
         List<Post> defaultPosts = new ArrayList<>();
-        defaultPosts.add(new Post(userId, "drawable://panda_feed", "Panda en acción", System.currentTimeMillis(), null)); // Añadimos null para fileName
-        defaultPosts.add(new Post(userId, "drawable://rice_field", "Arrozales gloriosos", System.currentTimeMillis(), null)); // Añadimos null para fileName
-        defaultPosts.add(new Post(userId, "drawable://factory", "Producción al máximo", System.currentTimeMillis(), null)); // Añadimos null para fileName
+        defaultPosts.add(new Post(userId, "drawable://panda_feed", "Panda en acción", System.currentTimeMillis(), null));
+        defaultPosts.add(new Post(userId, "drawable://rice_field", "Arrozales gloriosos", System.currentTimeMillis(), null));
+        defaultPosts.add(new Post(userId, "drawable://factory", "Producción al máximo", System.currentTimeMillis(), null));
         return defaultPosts;
-    }
-
-    private int getResourceFromDrawable(String drawableUrl) {
-        switch (drawableUrl) {
-            case "drawable://xi_jinping": return R.drawable.xi_jinping;
-            case "drawable://panda": return R.drawable.panda;
-            case "drawable://china_flag": return R.drawable.china_flag;
-            case "drawable://panda_feed": return R.drawable.panda_feed;
-            case "drawable://rice_field": return R.drawable.rice_field;
-            case "drawable://factory": return R.drawable.factory;
-            default: return R.drawable.placeholder;
-        }
     }
 
     @Override

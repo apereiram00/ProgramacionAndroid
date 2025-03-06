@@ -1,4 +1,3 @@
-// com.example.chinagram.UI.SubirFragment.java
 package com.example.chinagram.UI;
 
 import android.content.Intent;

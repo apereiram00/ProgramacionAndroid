@@ -1,6 +1,4 @@
-// Author: Álvaro Pereira
-// Date: 24-02-2025
-
+// com.example.chinagram.UI.LoginFragment.java
 package com.example.chinagram.UI;
 
 import android.app.AlertDialog;
@@ -19,8 +17,10 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import com.example.chinagram.Model.SharedPreferencesHelper;
 import com.example.chinagram.Model.Usuario;
+import com.example.chinagram.Model.UsuarioRepositorio;
 import com.example.chinagram.R;
 import com.example.chinagram.databinding.FragmentLoginBinding;
+import com.example.chinagram.utils.DrawableUtils;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,79 +31,70 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginFragment extends Fragment {
     private FragmentLoginBinding binding;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
-    private int intentos_fallidos = 0;     // Contador de intentos fallidos de login
-    private static final int max_intentos = 3; // Límite máximo de intentos fallidos antes de ocultar la imagen
+    private int intentos_fallidos = 0;
+    private static final int max_intentos = 3;
+    private UsuarioRepositorio usuarioRepositorio;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentLoginBinding.inflate(inflater, container, false);
-        mAuth = FirebaseAuth.getInstance(); // Inicializo FirebaseAuth
+        mAuth = FirebaseAuth.getInstance();
+        usuarioRepositorio = new UsuarioRepositorio(requireContext());
 
-        // Configuro y registro el flujo de Google Sign-In
         configurarGoogleSignIn();
         registrarLauncherGoogleSignIn();
 
-        // Verifico preferencias guardadas para "Recuérdame"
         SharedPreferencesHelper sharedPreferencesHelper = new SharedPreferencesHelper(requireContext());
         if (sharedPreferencesHelper.recuerdameOn()) {
             String savedEmail = sharedPreferencesHelper.recuperarEmail();
             if (savedEmail != null) {
-                binding.loginEmail.setText(savedEmail); // Relleno el campo de email
-                binding.loginRememberMe.setChecked(true); // Marco el checkbox
+                binding.loginEmail.setText(savedEmail);
+                binding.loginRememberMe.setChecked(true);
             }
         }
 
-        // Listener para el botón de login (imagen)
+        // Listener para el botón de login (imagen) - Funciona como "puerta"
         binding.loginImage.setOnClickListener(view -> {
             String email = binding.loginEmail.getText().toString().trim();
             String password = binding.loginPassword.getText().toString().trim();
 
-            // Valido que los campos no estén vacíos
             if (email.isEmpty() || password.isEmpty()) {
                 mostrarDialogo("Error", "Los campos no pueden estar vacíos.");
             } else {
-                // Intento autenticar al usuario
                 logarUsuario(email, password);
             }
         });
 
-        // Listener para el botón de Google Sign-In
         binding.loginGoogleButton.setOnClickListener(view -> iniciarSignInConGoogle());
 
-        // Listener para el botón de registro
         binding.registerButton.setOnClickListener(view -> {
             String email = binding.loginEmail.getText().toString().trim();
             String password = binding.loginPassword.getText().toString().trim();
 
-            // Valido que los campos no estén vacíos
             if (email.isEmpty() || password.isEmpty()) {
                 mostrarDialogo("Error", "Los campos no pueden estar vacíos.");
             } else {
-                // Intento registrar al usuario
                 crearUsuario(email, password);
             }
         });
 
-        return binding.getRoot(); // Devuelvo la vista raíz
+        return binding.getRoot();
     }
 
-    // Configuro las opciones de Google Sign-In
     private void configurarGoogleSignIn() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id)) // ID del cliente web de Firebase
-                .requestEmail() // Solicito el email del usuario
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
     }
 
-    // Registro el launcher para manejar el resultado de Google Sign-In
     private void registrarLauncherGoogleSignIn() {
         googleSignInLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -114,31 +105,26 @@ public class LoginFragment extends Fragment {
                         try {
                             GoogleSignInAccount account = task.getResult(ApiException.class);
                             if (account != null) {
-                                // Autentico con Firebase usando el token de Google
                                 autenticarConFirebaseGoogle(account.getIdToken());
                             }
                         } catch (ApiException ignored) {
                             ignored.printStackTrace();
-                            // (24-02-2025 || Está vacío aunque no hace falta rellenar nada)
                         }
                     }
                 }
         );
     }
 
-    // Inicio el flujo de Google Sign-In
     private void iniciarSignInConGoogle() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         googleSignInLauncher.launch(signInIntent);
     }
 
-    // Autentico con Firebase usando las credenciales de Google
     private void autenticarConFirebaseGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
-            // Vinculo la cuenta de Google a una cuenta existente
             currentUser.linkWithCredential(credential)
                     .addOnCompleteListener(requireActivity(), task -> {
                         if (task.isSuccessful()) {
@@ -146,7 +132,6 @@ public class LoginFragment extends Fragment {
                         }
                     });
         } else {
-            // Inicio sesión con Google
             mAuth.signInWithCredential(credential).addOnCompleteListener(requireActivity(), task -> {
                 if (task.isSuccessful()) {
                     navegarAlHome();
@@ -155,79 +140,71 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    // Creo un nuevo usuario con email y contraseña
-    // (Mantén los cambios de la respuesta anterior en LoginFragment.java, pero ajusta para evitar duplicados)
     private void crearUsuario(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(requireActivity(), task -> {
             if (task.isSuccessful()) {
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
-                    String username = extraerNombreUsuario(email); // "grok" de "grok@gmail.com"
-                    // Verificar si el usuario ya existe en Firestore para evitar duplicados
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    db.collection("usuarios").document(user.getUid()).get()
-                            .addOnSuccessListener(documentSnapshot -> {
-                                if (!documentSnapshot.exists()) {
-                                    guardarUsuarioEnFirestore(user.getUid(), username);
-                                } else {
-                                    Log.w("LoginFragment", "Usuario ya existe en Firestore, no se crea duplicado");
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("LoginFragment", "Error al verificar usuario en Firestore: " + e.getMessage());
-                                guardarUsuarioEnFirestore(user.getUid(), username);
+                    String username = extraerNombreUsuario(email);
+                    String fotoUrl = DrawableUtils.getRandomDrawableUrl();
+                    Usuario nuevoUsuario = new Usuario(user.getUid(), username, "Explorador del mundo", fotoUrl, 0, 0, 0);
+                    usuarioRepositorio.ensureUserExistsAndSync(user.getUid(), nuevoUsuario, new UsuarioRepositorio.UpdateCallback() {
+                        @Override
+                        public void onUpdateComplete() {
+                            requireActivity().runOnUiThread(() -> {
+                                mostrarDialogo("Registro", "¡Registrado en CHINAGRAM!");
                             });
+                        }
+                        @Override
+                        public void onError(String error) {
+                            requireActivity().runOnUiThread(() -> mostrarDialogo("Error", "Fallo al sincronizar: " + error));
+                        }
+                    });
                 }
-                mostrarDialogo("Registro", "¡Registrado en CHINAGRAM!");
             } else {
                 mostrarDialogo("Error", "La cuenta ya existe o hubo un problema.");
             }
         });
     }
 
-    // Inicio sesión con email y contraseña
     private void logarUsuario(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(requireActivity(), task -> {
             if (task.isSuccessful()) {
                 intentos_fallidos = 0; // Reinicio el contador de intentos
+                binding.loginImage.setVisibility(View.VISIBLE); // Aseguro que la imagen sea visible tras un login exitoso
                 boolean recuerdame = binding.loginRememberMe.isChecked();
                 SharedPreferencesHelper sharedPreferencesHelper = new SharedPreferencesHelper(requireContext());
                 if (recuerdame) {
-                    // Guardo el email y marca "Recuérdame"
                     sharedPreferencesHelper.guardarLogin(email, true);
                 } else {
-                    // Limpio las preferencias de login
                     sharedPreferencesHelper.limpiarLogin();
                 }
                 navegarAlHome();
             } else {
-                intentos_fallidos++; // Incremento el contador
+                intentos_fallidos++;
                 if (intentos_fallidos < max_intentos) {
                     mostrarDialogo("Error", "Credenciales incorrectas.");
                 }
-                // Si se supera el límite, oculto la imagen
                 if (intentos_fallidos >= max_intentos) {
-                    binding.loginImage.setVisibility(View.INVISIBLE);
+                    binding.loginImage.setVisibility(View.INVISIBLE); // Oculto la imagen ("puerta")
                     mostrarDialogo("Intentos fallidos", "Has alcanzado el número máximo de intentos fallidos.");
                 }
             }
         });
     }
 
-    // Navego al fragmento Home limpiando la pila de navegación
     private void navegarAlHome() {
         try {
             NavController navController = Navigation.findNavController(requireView());
             NavOptions navOptions = new NavOptions.Builder()
-                    .setPopUpTo(R.id.loginFragment, true) // Elimino el LoginFragment de la pila
+                    .setPopUpTo(R.id.loginFragment, true)
                     .build();
             navController.navigate(R.id.action_loginFragment_to_homeFragment, null, navOptions);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace(); // Manejo errores de navegación
+            e.printStackTrace();
         }
     }
 
-    // Muestro un diálogo simple con título y mensaje
     private void mostrarDialogo(String titulo, String mensaje) {
         new AlertDialog.Builder(requireContext())
                 .setTitle(titulo)
@@ -237,19 +214,10 @@ public class LoginFragment extends Fragment {
     }
 
     private String extraerNombreUsuario(String email) {
-        // Extrae la parte antes del "@" del correo (por ejemplo, "pepito1992" de "pepito1992@gmail.com")
         int atIndex = email.indexOf('@');
         if (atIndex != -1) {
             return email.substring(0, atIndex);
         }
-        return email; // Si no hay "@", devolvemos el email completo como fallback
-    }
-
-    private void guardarUsuarioEnFirestore(String userId, String username) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("usuarios").document(userId).set(
-                        new Usuario(userId, username, "Explorador del mundo", "drawable://panda", 0, 0))
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Usuario guardado en Firestore con nombre: " + username))
-                .addOnFailureListener(e -> Log.e("Firestore", "Error al guardar usuario: " + e.getMessage()));
+        return email;
     }
 }

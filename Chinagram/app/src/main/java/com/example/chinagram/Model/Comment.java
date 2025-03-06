@@ -8,16 +8,16 @@ import androidx.room.PrimaryKey;
 public class Comment {
     @PrimaryKey(autoGenerate = true)
     public int id;
-    public int postId; // ID de la publicación, usamos postId
-    public String usuarioId; // ID del usuario que comentó, usamos usuarioId
-    public String nombre; // Nombre del usuario que comentó
+    public int postId; // ID de la publicación
+    public String usuarioCommentId; // ID del usuario que comenta
+    public String nombreUsuarioPost; // Nombre del usuario que comenta
     public String text;
-    public long fecha; // Usamos fecha en lugar de timestamp para consistencia
+    public long fecha; // Uso la fecha en lugar de timestamp para consistencia
 
-    public Comment(int postId, String usuarioId, String nombre, String text, long fecha) {
+    public Comment(int postId, String usuarioCommentId, String nombreUsuarioPost, String text, long fecha) {
         this.postId = postId;
-        this.usuarioId = usuarioId;
-        this.nombre = nombre;
+        this.usuarioCommentId = usuarioCommentId;
+        this.nombreUsuarioPost = nombreUsuarioPost;
         this.text = text;
         this.fecha = fecha;
     }

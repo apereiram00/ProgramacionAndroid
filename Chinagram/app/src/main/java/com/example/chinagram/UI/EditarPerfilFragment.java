@@ -14,11 +14,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import com.bumptech.glide.Glide;
 import com.example.chinagram.Model.PerfilViewModel;
+import com.example.chinagram.Model.Usuario;
+import com.example.chinagram.Model.UsuarioRepositorio;
 import com.example.chinagram.R;
 import com.example.chinagram.databinding.FragmentEditarPerfilBinding;
+import com.example.chinagram.utils.DrawableUtils;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class EditarPerfilFragment extends Fragment {
@@ -45,7 +49,6 @@ public class EditarPerfilFragment extends Fragment {
         binding.aceptarButton.setBackground(null);
         binding.cambiarFotoButton.setBackground(null);
 
-        // Cargo los datos actuales del usuario
         perfilViewModel.getUsuario(userId).observe(getViewLifecycleOwner(), usuario -> {
             if (usuario != null) {
                 binding.nombreEditText.setText(usuario.nombre);
@@ -58,61 +61,82 @@ public class EditarPerfilFragment extends Fragment {
             }
         });
 
-        // Configuro el launcher para seleccionar fotos
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
-                selectedImageUri = result.getData().getData(); // Almacenamos la Uri temporalmente
+                selectedImageUri = result.getData().getData();
                 if (selectedImageUri != null) {
                     Log.d("EditarPerfilFragment", "Foto seleccionada (vista previa): " + selectedImageUri);
-                    // Mostrar vista previa local sin subir a Supabase
                     Glide.with(this).load(selectedImageUri).into(binding.fotoPerfilImageView);
                 }
             }
         });
 
-        // Listener para cambiar la foto
         binding.cambiarFotoButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             pickImageLauncher.launch(intent);
         });
 
-        // Listener para guardar cambios y volver
         binding.aceptarButton.setOnClickListener(v -> {
             String nuevoNombre = binding.nombreEditText.getText().toString().trim();
             String nuevaBio = binding.bioEditText.getText().toString().trim();
             if (!nuevoNombre.isEmpty()) {
-                // Subir la imagen seleccionada si hay una nueva
+                NavController navController = Navigation.findNavController(v);
+                binding.progressBar.setVisibility(View.VISIBLE); // Muestro ProgressBar
+                binding.aceptarButton.setEnabled(false); // Deshabilito botón para evitar clics múltiples
+
                 if (selectedImageUri != null) {
-                    perfilViewModel.uploadProfileImage(selectedImageUri, userId);
-                    selectedImageUri = null; // Resetear la Uri después de subir
+                    perfilViewModel.uploadProfileImage(selectedImageUri, userId, new UsuarioRepositorio.UpdateCallback() {
+                        @Override
+                        public void onUpdateComplete() {
+                            perfilViewModel.updateProfile(userId, nuevoNombre, nuevaBio, new UsuarioRepositorio.UpdateCallback() {
+                                @Override
+                                public void onUpdateComplete() {
+                                    navController.popBackStack(R.id.perfilFragment, false);
+                                    binding.progressBar.setVisibility(View.GONE);
+                                    binding.aceptarButton.setEnabled(true);
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    Log.e("EditarPerfilFragment", "Error al actualizar perfil: " + error);
+                                    binding.progressBar.setVisibility(View.GONE);
+                                    binding.aceptarButton.setEnabled(true);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Log.e("EditarPerfilFragment", "Error al subir imagen: " + error);
+                            binding.progressBar.setVisibility(View.GONE);
+                            binding.aceptarButton.setEnabled(true);
+                        }
+                    });
+                } else {
+                    perfilViewModel.updateProfile(userId, nuevoNombre, nuevaBio, new UsuarioRepositorio.UpdateCallback() {
+                        @Override
+                        public void onUpdateComplete() {
+                            navController.popBackStack(R.id.perfilFragment, false);
+                            binding.progressBar.setVisibility(View.GONE);
+                            binding.aceptarButton.setEnabled(true);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Log.e("EditarPerfilFragment", "Error al actualizar perfil: " + error);
+                            binding.progressBar.setVisibility(View.GONE);
+                            binding.aceptarButton.setEnabled(true);
+                        }
+                    });
                 }
-                // Actualizar nombre y biografía
-                perfilViewModel.updateProfile(userId, nuevoNombre, nuevaBio);
-                // Observa cuando todas las actualizaciones estén completas
-                perfilViewModel.getUpdatesCompleted().observe(getViewLifecycleOwner(), completed -> {
-                    if (completed != null && completed) {
-                        Log.d("EditarPerfilFragment", "Todas las actualizaciones completadas y navegando");
-                        Navigation.findNavController(v).popBackStack(R.id.perfilFragment, false);
-                    }
-                });
             } else {
                 Log.w("EditarPerfilFragment", "El nombre no puede estar vacío");
-                // Opcional: Mostrar un mensaje al usuario (Toast o SnackBar)
             }
         });
     }
 
     private int getResourceFromDrawable(String drawableUrl) {
-        Log.d("EditarPerfilFragment", "Cargando drawable: " + drawableUrl);
-        switch (drawableUrl) {
-            case "drawable://xi_jinping": return R.drawable.xi_jinping;
-            case "drawable://panda": return R.drawable.panda;
-            case "drawable://china_flag": return R.drawable.china_flag;
-            case "drawable://panda_feed": return R.drawable.panda_feed;
-            case "drawable://rice_field": return R.drawable.rice_field;
-            case "drawable://factory": return R.drawable.factory;
-            default: return R.drawable.placeholder;
-        }
+        return DrawableUtils.getResourceFromDrawable(drawableUrl);
     }
 
     @Override

@@ -23,7 +23,7 @@ public class PostViewModel extends AndroidViewModel {
         usuarioRepositorio = new UsuarioRepositorio(application);
     }
 
-    public void uploadPost(Uri imageUri, String usuarioId, String descripcion) { // Usamos usuarioId y descripcion
+    public void uploadPost(Uri imageUri, String usuarioId, String descripcion) {
         repositorio.uploadPost(imageUri, usuarioId, descripcion, new PostRepositorio.UpdateCallback() {
             @Override
             public void onUpdateComplete() {
@@ -37,7 +37,7 @@ public class PostViewModel extends AndroidViewModel {
         });
     }
 
-    public LiveData<List<Post>> getPostsByUser(String usuarioId) { // Usamos usuarioId
+    public LiveData<List<Post>> getPostsByUser(String usuarioId) {
         return repositorio.getPostsByUser(usuarioId);
     }
 
@@ -45,7 +45,7 @@ public class PostViewModel extends AndroidViewModel {
         return postUploadCompleted;
     }
 
-    public void deletePost(int postId, DeleteCallback callback) { // Usamos postId
+    public void deletePost(int postId, DeleteCallback callback) {
         repositorio.deletePost(postId, new PostRepositorio.DeleteCallback() {
             @Override
             public void onDeleteComplete(boolean success) {
@@ -54,11 +54,11 @@ public class PostViewModel extends AndroidViewModel {
         });
     }
 
-    public void toggleLike(String usuarioId, int postId, boolean isLiked) { // Usamos usuarioId y postId
+    public void toggleLike(String usuarioId, int postId, boolean isLiked) {
         repositorio.toggleLike(usuarioId, postId, isLiked);
     }
 
-    public void addComment(String usuarioId, int postId, String comment) { // Usamos usuarioId y postId
+    public void addComment(String usuarioId, int postId, String comment) {
         repositorio.addComment(usuarioId, postId, comment);
     }
 
@@ -66,7 +66,7 @@ public class PostViewModel extends AndroidViewModel {
         return repositorio.getComments(postId);
     }
 
-    public LiveData<Boolean> getLikeStatus(String usuarioId, int postId) { // Usamos usuarioId y postId
+    public LiveData<Boolean> getLikeStatus(String usuarioId, int postId) {
         return repositorio.getLikeStatus(usuarioId, postId);
     }
 
@@ -82,7 +82,4 @@ public class PostViewModel extends AndroidViewModel {
         return usuarioRepositorio.getUsuarioName(usuarioId);
     }
 
-    public LiveData<List<Usuario>> searchUsersByName(String query) {
-        return usuarioRepositorio.searchUsersByName(query); // Usamos directamente LiveData desde UsuarioRepositorio
-    }
 }

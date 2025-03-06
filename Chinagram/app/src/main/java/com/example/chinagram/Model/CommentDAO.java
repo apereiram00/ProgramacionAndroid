@@ -13,6 +13,6 @@ public interface CommentDAO {
     @Insert
     void insert(Comment comment);
 
-    @Query("SELECT * FROM comments WHERE postId = :postId ORDER BY fecha DESC") // Usamos postId y fecha
+    @Query("SELECT * FROM comments WHERE postId = :postId ORDER BY fecha DESC") // Uso postId y fecha
     LiveData<List<Comment>> getCommentsByPost(int postId);
 }
