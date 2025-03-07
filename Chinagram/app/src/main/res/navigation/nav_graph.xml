@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.chinagram.UI.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.chinagram.UI.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <!-- Añadir acción para navegar a PerfilFragment si es necesario -->
+        <action
+            android:id="@+id/action_homeFragment_to_perfilFragment"
+            app:destination="@id/perfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.example.chinagram.UI.PerfilFragment"
+        tools:layout="@layout/fragment_perfil">
+        <action
+            android:id="@+id/action_perfilFragment_to_detallesPostFragment"
+            app:destination="@id/detallesPostFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/perfilFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_perfilFragment_to_opcionesFragment"
+            app:destination="@id/opcionesFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_perfilFragment_to_editarPerfilFragment"
+            app:destination="@id/editarPerfilFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/buscarFragment"
+        android:name="com.example.chinagram.UI.BuscarFragment"
+        android:label="fragment_buscar"
+        tools:layout="@layout/fragment_buscar">
+        <action
+            android:id="@+id/action_buscarFragment_to_perfilFragment"
+            app:destination="@id/perfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_buscarFragment_to_busquedaPerfilFragment"
+            app:destination="@id/busquedaPerfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/buscarFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subirFragment"
+        android:name="com.example.chinagram.UI.SubirFragment"
+        android:label="fragment_subir"
+        tools:layout="@layout/fragment_subir">
+        <action
+            android:id="@+id/action_subirFragment_to_perfilFragment"
+            app:destination="@id/perfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reelsFragment"
+        android:name="com.example.chinagram.UI.ReelsFragment"
+        android:label="fragment_reels"
+        tools:layout="@layout/fragment_reels" />
+
+    <fragment
+        android:id="@+id/editarPerfilFragment"
+        android:name="com.example.chinagram.UI.EditarPerfilFragment"
+        android:label="fragment_editar_perfil"
+        tools:layout="@layout/fragment_editar_perfil">
+        <action
+            android:id="@+id/action_editarPerfilFragment_to_perfilFragment"
+            app:destination="@id/perfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/opcionesFragment"
+        android:name="com.example.chinagram.UI.OpcionesFragment"
+        tools:layout="@layout/fragment_opciones">
+        <action
+            android:id="@+id/action_opcionesFragment_to_perfilFragment"
+            app:destination="@id/perfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detallesPostFragment"
+        android:name="com.example.chinagram.UI.DetallesPostFragment"
+        android:label="fragment_detalles_post"
+        tools:layout="@layout/fragment_detalles_post">
+        <action
+            android:id="@+id/action_detallesPostFragment_to_perfilFragment"
+            app:destination="@id/perfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/busquedaPerfilFragment"
+        android:name="com.example.chinagram.UI.BusquedaPerfilFragment"
+        android:label="fragment_usuario_perfil"
+        tools:layout="@layout/busqueda_perfil">
+        <argument
+            android:name="userId"
+            app:argType="string"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_busquedaPerfilFragment_to_buscarFragment"
+            app:destination="@id/buscarFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/busquedaPerfilFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_busquedaPerfilFragment_to_detallesPostFragment"
+            app:destination="@id/detallesPostFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/busquedaPerfilFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+</navigation>
