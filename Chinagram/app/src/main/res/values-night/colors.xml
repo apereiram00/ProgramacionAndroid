@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Colores para modo oscuro -->
-    <color name="button_background">#00000000</color> <!-- Fondo transparente en oscuro -->
-    <color name="button_text_color">@color/white</color> <!-- Texto blanco -->
-    <color name="text_color">@color/white</color> <!-- Blanco en modo oscuro -->
-</resources>
